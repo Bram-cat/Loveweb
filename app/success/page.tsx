@@ -4,52 +4,14 @@ import { useUser } from '@clerk/nextjs'
 import { motion } from 'framer-motion'
 import { CheckCircle, Heart, Sparkles, ArrowRight, Crown } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 export default function SuccessPage() {
   const { user } = useUser()
   const router = useRouter()
   const searchParams = useSearchParams()
   const sessionId = searchParams.get('session_id')
-  const [countdown, setCountdown] = useState(10)
 
-  useEffect(() => {
-    // Countdown to redirect to app
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer)
-          // Redirect to mobile app
-          window.location.href = 'lovelock://payment-success'
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-
-    return () => clearInterval(timer)
-  }, [])
-
-  const handleOpenApp = () => {
-    // Try to open mobile app
-    window.location.href = 'lovelock://payment-success'
-
-    // Fallback to app store after a delay
-    setTimeout(() => {
-      // Detect platform and redirect to appropriate store
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-      const isAndroid = /Android/.test(navigator.userAgent)
-
-      if (isIOS) {
-        window.location.href = 'https://apps.apple.com/app/lovelock'
-      } else if (isAndroid) {
-        window.location.href = 'https://play.google.com/store/apps/details?id=com.cowman.lovelock'
-      } else {
-        // Desktop fallback
-        router.push('/dashboard')
-      }
-    }, 2000)
-  }
 
   const handleDashboard = () => {
     router.push('/dashboard')
@@ -144,42 +106,35 @@ export default function SuccessPage() {
             )}
           </motion.div>
 
-          {/* Action Buttons */}
+          {/* Dashboard Action */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12"
+            className="flex justify-center mb-12"
           >
             <button
-              onClick={handleOpenApp}
+              onClick={handleDashboard}
               className="bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-4 rounded-xl text-white font-semibold text-lg btn-cosmic hover:shadow-2xl transition-all transform hover:scale-105 flex items-center space-x-2"
             >
-              <Sparkles className="w-5 h-5" />
-              <span>Return to App</span>
+              <Crown className="w-5 h-5" />
+              <span>Go to Dashboard</span>
               <ArrowRight className="w-5 h-5" />
-            </button>
-
-            <button
-              onClick={handleDashboard}
-              className="glass px-8 py-4 rounded-xl text-white font-semibold text-lg hover:bg-white/20 transition-all"
-            >
-              View Dashboard
             </button>
           </motion.div>
 
-          {/* Auto-redirect notice */}
+          {/* Success Info */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="glass p-4 rounded-xl"
+            className="glass p-6 rounded-xl max-w-md mx-auto"
           >
-            <p className="text-gray-300 text-sm mb-2">
-              You'll be automatically redirected to the Lovelock app in
-            </p>
-            <div className="text-2xl font-bold text-white">
-              {countdown} seconds
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-white mb-2">What's Next?</h3>
+              <p className="text-gray-300 text-sm">
+                Your premium subscription is now active! Head to your dashboard to explore all the enhanced features and start your cosmic journey.
+              </p>
             </div>
           </motion.div>
 
