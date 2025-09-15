@@ -5,7 +5,10 @@ export async function POST(request: NextRequest) {
   try {
     const { priceId, userEmail } = await request.json()
 
-    if (!priceId) {
+    console.log('Checkout session request:', { priceId, userEmail })
+
+    if (!priceId || priceId === 'null' || priceId === null) {
+      console.error('Invalid price ID received:', priceId)
       return NextResponse.json(
         { error: 'Price ID is required. Please select a valid subscription plan.' },
         { status: 400 }
@@ -13,6 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!userEmail) {
+      console.error('Missing user email')
       return NextResponse.json(
         { error: 'User email is required for checkout.' },
         { status: 400 }
@@ -30,7 +34,20 @@ export async function POST(request: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_DOMAIN || request.headers.get('origin')
 
+    // Verify price exists in Stripe first
+    try {
+      const price = await stripe.prices.retrieve(priceId)
+      console.log('Price verification successful:', { priceId, active: price.active, currency: price.currency })
+    } catch (priceError) {
+      console.error('Price verification failed:', priceError)
+      return NextResponse.json(
+        { error: `Invalid price ID: ${priceId}. This subscription plan may not be available.` },
+        { status: 400 }
+      )
+    }
+
     // Create Stripe checkout session
+    console.log('Creating checkout session with:', { priceId, userEmail, baseUrl })
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -51,6 +68,8 @@ export async function POST(request: NextRequest) {
         },
       },
     })
+
+    console.log('Checkout session created successfully:', { sessionId: session.id, url: !!session.url })
 
     if (!session.url) {
       return NextResponse.json(

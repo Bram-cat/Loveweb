@@ -13,11 +13,28 @@ export default function PricingPage() {
   const [isYearly, setIsYearly] = useState(false)
   const [loading, setLoading] = useState<string | null>(null)
 
+  // Debug: Log subscription plans to check if price IDs are loaded
+  console.log('SUBSCRIPTION_PLANS:', SUBSCRIPTION_PLANS)
+
   const handleSubscribe = async (priceId: string, planName: string) => {
     if (!user) {
       return // User needs to sign in first
     }
 
+    if (!priceId) {
+      console.error('Missing price ID for plan:', planName)
+      alert('Error: Price ID is missing for this plan. Please refresh the page and try again.')
+      return
+    }
+
+    if (!user.primaryEmailAddress?.emailAddress) {
+      console.error('Missing user email address')
+      alert('Error: User email is required for checkout. Please ensure your account has a valid email.')
+      return
+    }
+
+    console.log('Subscribing with priceId:', priceId, 'for plan:', planName)
+    console.log('User email:', user.primaryEmailAddress.emailAddress)
     setLoading(priceId)
 
     try {
@@ -64,6 +81,7 @@ export default function PricingPage() {
       price: 0,
       originalPrice: null,
       interval: null,
+      priceId: null, // Free plan doesn't need a price ID
       description: 'Get started with basic features',
       features: [
         '3 Numerology readings per month',
@@ -106,6 +124,14 @@ export default function PricingPage() {
       gradient: 'from-yellow-500 to-orange-600'
     }
   ]
+
+  // Debug: Log plans to check price IDs
+  console.log('Plans array:', plans.map(plan => ({
+    tier: plan.tier,
+    name: plan.name,
+    priceId: plan.priceId,
+    hasValidPriceId: !!plan.priceId
+  })))
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -316,8 +342,8 @@ export default function PricingPage() {
                     </SignUpButton>
                   ) : (
                     <button
-                      onClick={() => handleSubscribe(plan.priceId!, plan.name)}
-                      disabled={loading === plan.priceId}
+                      onClick={() => plan.priceId && handleSubscribe(plan.priceId, plan.name)}
+                      disabled={loading === plan.priceId || !plan.priceId}
                       className={`w-full py-4 px-6 rounded-xl font-semibold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
                         plan.highlight
                           ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white btn-cosmic shadow-lg'

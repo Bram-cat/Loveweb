@@ -5,10 +5,27 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   typescript: true,
 })
 
+// Price IDs configuration
+// Based on your clarification: only premium monthly is development price ID, rest are real production price IDs
+const PRICE_IDS = {
+  premium: {
+    monthly: 'price_1S7Q4zGNqirbVSGkHxQN02xl', // Development price ID (will work on lovelock.it.com if using same Stripe account)
+    yearly: 'price_1S6ZjwCWEq8iX3p2b3V15kV7',  // Real production price ID
+  },
+  unlimited: {
+    monthly: 'price_1S2lLrCWEq8iX3p2yN5YJwPE', // Real production price ID
+    yearly: 'price_1S6ZlBCWEq8iX3p2RuX8Gz4E'   // Real production price ID
+  }
+}
+
+console.log('Stripe price IDs configured:', PRICE_IDS)
+
+// Client-side accessible price IDs - these need to be hardcoded or loaded from a server endpoint
+// Since price IDs are not sensitive, we can include them directly
 export const SUBSCRIPTION_PLANS = {
   premium: {
     monthly: {
-      priceId: process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID!,
+      priceId: PRICE_IDS.premium.monthly,
       price: 4.99,
       interval: 'month' as const,
       name: 'Premium Monthly',
@@ -21,7 +38,7 @@ export const SUBSCRIPTION_PLANS = {
       ]
     },
     yearly: {
-      priceId: process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID!,
+      priceId: PRICE_IDS.premium.yearly,
       price: 49.99,
       interval: 'year' as const,
       name: 'Premium Yearly',
@@ -38,7 +55,7 @@ export const SUBSCRIPTION_PLANS = {
   },
   unlimited: {
     monthly: {
-      priceId: process.env.STRIPE_UNLIMITED_MONTHLY_PRICE_ID!,
+      priceId: PRICE_IDS.unlimited.monthly,
       price: 12.99,
       interval: 'month' as const,
       name: 'Unlimited Monthly',
@@ -53,7 +70,7 @@ export const SUBSCRIPTION_PLANS = {
       ]
     },
     yearly: {
-      priceId: process.env.STRIPE_UNLIMITED_YEARLY_PRICE_ID!,
+      priceId: PRICE_IDS.unlimited.yearly,
       price: 129.99,
       interval: 'year' as const,
       name: 'Unlimited Yearly',
