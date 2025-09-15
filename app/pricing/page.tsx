@@ -42,7 +42,8 @@ export default function PricingPage() {
       window.location.href = data.url
     } catch (error) {
       console.error('Error creating checkout session:', error)
-      alert('Failed to start subscription process. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to start subscription process. Please try again.'
+      alert(`Error: ${errorMessage}`)
     } finally {
       setLoading(null)
     }
