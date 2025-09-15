@@ -1,71 +1,97 @@
-'use client'
+"use client";
 
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs'
-import { motion } from 'framer-motion'
-import { Heart, Sparkles, Shield, Calculator, Star, Diamond, Crown, Zap } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+  useUser,
+} from "@clerk/nextjs";
+import { motion } from "framer-motion";
+import {
+  Heart,
+  Sparkles,
+  Shield,
+  Calculator,
+  Star,
+  Diamond,
+  Crown,
+  Zap,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function HomePage() {
-  const { user, isLoaded } = useUser()
-  const router = useRouter()
+  const { user, isLoaded } = useUser();
+  const router = useRouter();
 
   useEffect(() => {
     // If user is signed in, redirect to pricing
     if (isLoaded && user) {
-      router.push('/pricing')
+      router.push("/pricing");
     }
-  }, [user, isLoaded, router])
+  }, [user, isLoaded, router]);
 
   const features = [
     {
       icon: Calculator,
       title: "Numerology Readings",
-      description: "Unlock the secrets hidden in your birth date and name through ancient numerological wisdom."
+      description:
+        "Unlock the secrets hidden in your birth date and name through ancient numerological wisdom.",
     },
     {
       icon: Heart,
       title: "Love Compatibility",
-      description: "Discover deep insights about your relationships and romantic compatibility with others."
+      description:
+        "Discover deep insights about your relationships and romantic compatibility with others.",
     },
     {
       icon: Shield,
       title: "Trust Assessment",
-      description: "Evaluate trustworthiness and character traits through advanced psychological analysis."
+      description:
+        "Evaluate trustworthiness and character traits through advanced psychological analysis.",
     },
     {
       icon: Sparkles,
       title: "AI-Powered Insights",
-      description: "Get personalized insights powered by cutting-edge AI and psychological research."
-    }
-  ]
+      description:
+        "Get personalized insights powered by cutting-edge AI and psychological research.",
+    },
+  ];
 
   const testimonials = [
     {
       name: "Sarah M.",
       text: "Lovelock helped me understand my partner better. The compatibility reading was spot-on!",
-      rating: 5
+      rating: 5,
     },
     {
       name: "Michael R.",
       text: "The numerology readings are incredibly accurate. I'm amazed by what my birth date reveals.",
-      rating: 5
+      rating: 5,
     },
     {
       name: "Jessica L.",
       text: "Trust assessments have been a game-changer for my business relationships.",
-      rating: 5
-    }
-  ]
+      rating: 5,
+    },
+  ];
 
   if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="spinner"></div>
       </div>
-    )
+    );
   }
 
   return (
@@ -81,20 +107,18 @@ export default function HomePage() {
             <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
               <Heart className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-white text-glow">Lovelock</span>
+            <span className="text-2xl font-bold text-white text-glow">
+              Lovelock
+            </span>
           </motion.div>
 
           <div className="flex items-center space-x-4">
             <SignedOut>
               <SignInButton mode="modal">
-                <Button variant="glass">
-                  Sign In
-                </Button>
+                <Button variant="glass">Sign In</Button>
               </SignInButton>
               <SignUpButton mode="modal">
-                <Button variant="cosmic">
-                  Get Started
-                </Button>
+                <Button variant="cosmic">Get Started</Button>
               </SignUpButton>
             </SignedOut>
             <SignedIn>
@@ -114,7 +138,7 @@ export default function HomePage() {
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
               animationDelay: `${Math.random() * 2}s`,
-              animationDuration: `${2 + Math.random() * 2}s`
+              animationDuration: `${2 + Math.random() * 2}s`,
             }}
           />
         ))}
@@ -131,7 +155,9 @@ export default function HomePage() {
           >
             <div className="inline-flex items-center space-x-2 glass px-4 py-2 rounded-full mb-8">
               <Sparkles className="w-4 h-4 text-yellow-400" />
-              <span className="text-sm text-white">Unlock Hidden Secrets About Yourself and Others</span>
+              <span className="text-sm text-white">
+                Unlock Hidden Secrets About Yourself and Others
+              </span>
             </div>
           </motion.div>
 
@@ -142,7 +168,10 @@ export default function HomePage() {
             className="text-6xl md:text-7xl font-bold text-white mb-6 text-glow"
           >
             Discover Your
-            <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent"> Cosmic </span>
+            <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+              {" "}
+              Cosmic{" "}
+            </span>
             Blueprint
           </motion.h1>
 
@@ -152,8 +181,9 @@ export default function HomePage() {
             transition={{ delay: 0.4 }}
             className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed"
           >
-            Master the art of reading people using ancient numerology and modern psychology.
-            Predict behavior, understand relationships, and unlock personality patterns.
+            Master the art of reading people using ancient numerology and modern
+            psychology. Predict behavior, understand relationships, and unlock
+            personality patterns.
           </motion.p>
 
           <motion.div
@@ -164,7 +194,11 @@ export default function HomePage() {
           >
             <SignedOut>
               <SignUpButton mode="modal">
-                <Button variant="cosmic" size="xl" className="inline-flex items-center gap-2">
+                <Button
+                  variant="cosmic"
+                  size="xl"
+                  className="inline-flex items-center gap-2"
+                >
                   Start Your Journey
                   <Sparkles className="w-5 h-5" />
                 </Button>
@@ -174,7 +208,7 @@ export default function HomePage() {
               <Button
                 variant="cosmic"
                 size="xl"
-                onClick={() => router.push('/pricing')}
+                onClick={() => router.push("/pricing")}
                 className="inline-flex items-center gap-2"
               >
                 Choose Your Plan
@@ -183,10 +217,15 @@ export default function HomePage() {
             </SignedIn>
 
             <div className="text-center">
-              <p className="text-sm text-gray-400">Used by 50,000+ people worldwide</p>
+              <p className="text-sm text-gray-400">
+                Used by 50,000+ people worldwide
+              </p>
               <div className="flex justify-center mt-2">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                  <Star
+                    key={i}
+                    className="w-4 h-4 text-yellow-400 fill-current"
+                  />
                 ))}
                 <span className="text-sm text-gray-300 ml-2">4.9/5</span>
               </div>
@@ -206,10 +245,14 @@ export default function HomePage() {
           >
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 text-glow">
               Powerful Features for
-              <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent"> Self-Discovery</span>
+              <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+                {" "}
+                Self-Discovery
+              </span>
             </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Everything you need to understand yourself and others on a deeper level
+              Everything you need to understand yourself and others on a deeper
+              level
             </p>
           </motion.div>
 
@@ -227,7 +270,9 @@ export default function HomePage() {
                     <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center mb-4">
                       <feature.icon className="w-6 h-6 text-white" />
                     </div>
-                    <CardTitle className="text-xl text-white">{feature.title}</CardTitle>
+                    <CardTitle className="text-xl text-white">
+                      {feature.title}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <CardDescription className="text-gray-300 leading-relaxed">
@@ -265,13 +310,18 @@ export default function HomePage() {
                     <CardContent className="pt-6">
                       <div className="flex justify-center mb-4">
                         {[...Array(testimonial.rating)].map((_, i) => (
-                          <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                          <Star
+                            key={i}
+                            className="w-5 h-5 text-yellow-400 fill-current"
+                          />
                         ))}
                       </div>
                       <CardDescription className="text-gray-300 mb-4 italic text-center">
                         &quot;{testimonial.text}&quot;
                       </CardDescription>
-                      <p className="text-white font-semibold text-center">{testimonial.name}</p>
+                      <p className="text-white font-semibold text-center">
+                        {testimonial.name}
+                      </p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -293,16 +343,25 @@ export default function HomePage() {
               <CardHeader className="text-center pb-6">
                 <CardTitle className="text-4xl md:text-5xl font-bold text-white text-glow mb-6">
                   Ready to Unlock Your
-                  <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent"> Potential</span>?
+                  <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+                    {" "}
+                    Potential
+                  </span>
+                  ?
                 </CardTitle>
                 <CardDescription className="text-xl text-gray-300 max-w-2xl mx-auto">
-                  Join thousands of people who have discovered the secrets hidden within their cosmic blueprint.
+                  Join thousands of people who have discovered the secrets
+                  hidden within their cosmic blueprint.
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
                 <SignedOut>
                   <SignUpButton mode="modal">
-                    <Button variant="cosmic" size="xl" className="inline-flex items-center gap-2 mb-4">
+                    <Button
+                      variant="cosmic"
+                      size="xl"
+                      className="inline-flex items-center gap-2 mb-4"
+                    >
                       Begin Your Journey Today
                       <Zap className="w-5 h-5" />
                     </Button>
@@ -312,7 +371,7 @@ export default function HomePage() {
                   <Button
                     variant="cosmic"
                     size="xl"
-                    onClick={() => router.push('/pricing')}
+                    onClick={() => router.push("/pricing")}
                     className="inline-flex items-center gap-2 mb-4"
                   >
                     Choose Your Plan
@@ -352,5 +411,5 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

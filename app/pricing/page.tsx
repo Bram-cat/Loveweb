@@ -21,11 +21,25 @@ export default function PricingPage() {
     setLoading(priceId)
 
     try {
-      // Placeholder - will redirect to success page for demo
-      alert(`${planName} subscription will be processed. Redirecting to success page...`)
-      setTimeout(() => {
-        router.push('/success')
-      }, 1000)
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          priceId,
+          userEmail: user.primaryEmailAddress?.emailAddress
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session')
+      }
+
+      // Redirect to Stripe checkout
+      window.location.href = data.url
     } catch (error) {
       console.error('Error creating checkout session:', error)
       alert('Failed to start subscription process. Please try again.')
