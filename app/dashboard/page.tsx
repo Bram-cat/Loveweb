@@ -2,7 +2,7 @@
 
 import { useUser, SignOutButton } from '@clerk/nextjs'
 import { motion } from 'framer-motion'
-import { Heart, Sparkles, Settings, Crown, Calculator, Shield, User, LogOut, ExternalLink } from 'lucide-react'
+import { Heart, Sparkles, Settings, Crown, Calculator, Shield, User, LogOut, ExternalLink, FileText } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
@@ -29,22 +29,6 @@ export default function DashboardPage() {
     alert('Billing portal will be available once backend is fully configured!')
   }
 
-  const handleOpenApp = () => {
-    // Try to open mobile app
-    window.location.href = 'lovelock://dashboard'
-
-    // Fallback to app store after a delay
-    setTimeout(() => {
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-      const isAndroid = /Android/.test(navigator.userAgent)
-
-      if (isIOS) {
-        window.open('https://apps.apple.com/app/lovelock', '_blank')
-      } else if (isAndroid) {
-        window.open('https://play.google.com/store/apps/details?id=com.cowman.lovelock', '_blank')
-      }
-    }, 1000)
-  }
 
   if (!isLoaded) {
     return (
@@ -65,7 +49,7 @@ export default function DashboardPage() {
     unlimited: { numerology: -1, loveMatch: -1, trustAssessment: -1 }
   }
 
-  const currentLimits = subscription ? usageLimits[subscription.tier] : usageLimits.free
+  const currentLimits = subscription ? usageLimits[subscription.tier as keyof typeof usageLimits] : usageLimits.free
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -171,11 +155,9 @@ export default function DashboardPage() {
                       <p className="text-gray-300 text-lg">
                         Status: <span className="text-white font-semibold capitalize">{subscription?.status || 'Active'}</span>
                       </p>
-                      {subscription?.currentPeriodEnd && (
-                        <p className="text-gray-400 mt-2">
-                          Renews on: {subscription.currentPeriodEnd.toLocaleDateString()}
-                        </p>
-                      )}
+                      <p className="text-gray-400 mt-2">
+                        Monthly billing cycle
+                      </p>
                     </div>
                   </div>
 
@@ -218,12 +200,12 @@ export default function DashboardPage() {
 
                   <div className="space-y-4">
                     <button
-                      onClick={handleOpenApp}
+                      onClick={() => router.push('/privacy')}
                       className="w-full flex items-center justify-between p-4 glass rounded-xl hover:bg-white/20 transition-all"
                     >
                       <div className="flex items-center space-x-3">
-                        <Sparkles className="w-5 h-5 text-pink-400" />
-                        <span className="text-white">Open Lovelock App</span>
+                        <Shield className="w-5 h-5 text-pink-400" />
+                        <span className="text-white">Privacy Policy</span>
                       </div>
                       <ExternalLink className="w-4 h-4 text-gray-400" />
                     </button>
@@ -381,14 +363,20 @@ export default function DashboardPage() {
                     ))}
                   </div>
 
-                  <div className="mt-8 text-center">
+                  <div className="mt-8 flex gap-4 justify-center">
                     <button
-                      onClick={handleOpenApp}
-                      className="bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-4 rounded-xl text-white font-semibold text-lg btn-cosmic hover:shadow-2xl transition-all transform hover:scale-105 inline-flex items-center space-x-2"
+                      onClick={() => router.push('/privacy')}
+                      className="bg-gradient-to-r from-pink-500 to-purple-600 px-6 py-3 rounded-xl text-white font-semibold btn-cosmic hover:shadow-2xl transition-all transform hover:scale-105 inline-flex items-center space-x-2"
                     >
-                      <Sparkles className="w-5 h-5" />
-                      <span>Open Lovelock App</span>
-                      <ExternalLink className="w-5 h-5" />
+                      <Shield className="w-5 h-5" />
+                      <span>Privacy Policy</span>
+                    </button>
+                    <button
+                      onClick={() => router.push('/terms')}
+                      className="glass px-6 py-3 rounded-xl text-white hover:bg-white/20 transition-all inline-flex items-center space-x-2"
+                    >
+                      <FileText className="w-5 h-5" />
+                      <span>Terms & Conditions</span>
                     </button>
                   </div>
                 </div>
