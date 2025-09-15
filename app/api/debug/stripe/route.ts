@@ -42,7 +42,8 @@ export async function GET(request: NextRequest) {
         nodeEnv: process.env.NODE_ENV,
         domain: process.env.NEXT_PUBLIC_DOMAIN,
         isProduction,
-        stripeKeyPresent: !!process.env.STRIPE_SECRET_KEY
+        stripeKeyPresent: !!process.env.STRIPE_SECRET_KEY,
+        webhookSecretPresent: !!process.env.STRIPE_WEBHOOK_SECRET
       },
       priceStatuses,
       subscriptionPlans: {

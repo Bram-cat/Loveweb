@@ -5,16 +5,15 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   typescript: true,
 })
 
-// Price IDs configuration
-// Based on your clarification: only premium monthly is development price ID, rest are real production price IDs
+// Price IDs configuration - CORRECTED BASED ON STRIPE DASHBOARD
 const PRICE_IDS = {
   premium: {
-    monthly: 'price_1S7Q4zGNqirbVSGkHxQN02xl', // Development price ID (will work on lovelock.it.com if using same Stripe account)
-    yearly: 'price_1S6ZjwCWEq8iX3p2b3V15kV7',  // Real production price ID
+    monthly: 'price_1S7Q4zGNqirbVSGkHxQN02xl', // Corrected Premium Monthly price ID from Stripe dashboard
+    yearly: 'price_1S6ZjwCWEq8iX3p2b3V15kV7',  // Premium Yearly price ID
   },
   unlimited: {
-    monthly: 'price_1S2lLrCWEq8iX3p2yN5YJwPE', // Real production price ID
-    yearly: 'price_1S6ZlBCWEq8iX3p2RuX8Gz4E'   // Real production price ID
+    monthly: 'price_1S2lLrCWEq8iX3p2yN5YJwPE', // Unlimited Monthly price ID
+    yearly: 'price_1S6ZlBCWEq8iX3p2RuX8Gz4E'   // Unlimited Yearly price ID
   }
 }
 

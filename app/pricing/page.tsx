@@ -12,6 +12,7 @@ export default function PricingPage() {
   const router = useRouter()
   const [isYearly, setIsYearly] = useState(false)
   const [loading, setLoading] = useState<string | null>(null)
+  const [useSimpleCheckout, setUseSimpleCheckout] = useState(true) // Use simple checkout by default
 
   // Debug: Log subscription plans to check if price IDs are loaded
   console.log('SUBSCRIPTION_PLANS:', SUBSCRIPTION_PLANS)
@@ -38,7 +39,10 @@ export default function PricingPage() {
     setLoading(priceId)
 
     try {
-      const response = await fetch('/api/create-checkout-session', {
+      const endpoint = useSimpleCheckout ? '/api/simple-checkout' : '/api/create-checkout-session'
+      console.log('Using checkout endpoint:', endpoint)
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

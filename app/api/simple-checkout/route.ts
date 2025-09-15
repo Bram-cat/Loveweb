@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
+import { auth } from '@clerk/nextjs/server'
 
+// Simplified checkout session creation without complex subscription service dependencies
 export async function POST(request: NextRequest) {
   try {
     const { priceId, userEmail } = await request.json()
 
-    console.log('Checkout session request:', { priceId, userEmail })
+    console.log('Simple checkout request:', { priceId, userEmail })
 
+    // Basic validation
     if (!priceId || priceId === 'null' || priceId === null) {
       console.error('Invalid price ID received:', priceId)
       return NextResponse.json(
@@ -23,7 +26,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify the Stripe configuration
+    // Verify user authentication
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
+    // Verify Stripe configuration
     if (!process.env.STRIPE_SECRET_KEY) {
       console.error('Stripe secret key not configured')
       return NextResponse.json(
@@ -34,83 +46,61 @@ export async function POST(request: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_DOMAIN || request.headers.get('origin')
 
-    // Verify price exists in Stripe first
-    console.log('Attempting to verify price ID:', priceId)
+    // Verify price exists in Stripe
     try {
       const price = await stripe.prices.retrieve(priceId)
       console.log('Price verification successful:', {
         priceId,
         active: price.active,
         currency: price.currency,
-        amount: price.unit_amount,
-        productId: price.product
+        amount: price.unit_amount
       })
 
       if (!price.active) {
-        console.error('Price is not active:', priceId)
         return NextResponse.json(
-          { error: `The selected subscription plan is currently inactive. Please try a different plan.` },
+          { error: 'The selected subscription plan is currently inactive.' },
           { status: 400 }
         )
       }
     } catch (priceError) {
-      console.error('Price verification failed for ID:', priceId, 'Error:', priceError)
-
-      // More specific error handling
-      if (priceError instanceof Error) {
-        if (priceError.message.includes('No such price')) {
-          return NextResponse.json(
-            { error: `Invalid price ID: ${priceId}. This subscription plan may not be available in your region or may have been discontinued.` },
-            { status: 400 }
-          )
-        }
-      }
-
+      console.error('Price verification failed:', priceError)
       return NextResponse.json(
-        { error: `Failed to validate subscription plan. Please try again or contact support. Price ID: ${priceId}` },
+        { error: `Invalid price ID: ${priceId}. This subscription plan may not be available.` },
         { status: 400 }
       )
     }
 
-    // Create Stripe checkout session
-    console.log('Creating checkout session with:', { priceId, userEmail, baseUrl })
-
-    const sessionConfig = {
-      mode: 'subscription' as const,
-      payment_method_types: ['card' as const],
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
+    // Create checkout session with minimal configuration
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [{
+        price: priceId,
+        quantity: 1,
+      }],
       success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/pricing`,
       customer_email: userEmail,
       allow_promotion_codes: true,
-      billing_address_collection: 'auto' as const,
+      billing_address_collection: 'auto',
+      metadata: {
+        userEmail: userEmail,
+        userId: userId,
+        source: 'lovelock-simple-checkout'
+      },
       subscription_data: {
         metadata: {
           userEmail: userEmail,
-          source: 'lovelockweb'
-        },
-      },
-      metadata: {
-        userEmail: userEmail,
-        source: 'lovelockweb'
+          userId: userId,
+          source: 'lovelock-simple-checkout'
+        }
       }
-    }
+    })
 
-    console.log('Checkout session config:', JSON.stringify(sessionConfig, null, 2))
-
-    const session = await stripe.checkout.sessions.create(sessionConfig)
-
-    console.log('Checkout session created successfully:', {
+    console.log('Simple checkout session created:', {
       sessionId: session.id,
       url: !!session.url,
-      mode: session.mode,
-      customerId: session.customer,
-      customerEmail: session.customer_email
+      customer_email: session.customer_email
     })
 
     if (!session.url) {
@@ -121,14 +111,15 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ url: session.url })
+
   } catch (error) {
-    console.error('Error creating checkout session:', error)
+    console.error('Simple checkout error:', error)
 
     // Handle specific Stripe errors
     if (error instanceof Error) {
       if (error.message.includes('No such price')) {
         return NextResponse.json(
-          { error: 'Invalid subscription plan selected. Please refresh the page and try again.' },
+          { error: 'Invalid subscription plan selected. Please try again.' },
           { status: 400 }
         )
       }
@@ -141,7 +132,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'Unable to process payment at this time. Please try again later.' },
+      { error: 'Payment processing failed. Please try again.' },
       { status: 500 }
     )
   }

@@ -339,17 +339,22 @@ export class SubscriptionService {
         throw new Error('No clerk_id in subscription metadata')
       }
 
-      // Determine tier from price ID
+      // Determine tier from price ID using our configured price IDs
       const priceId = subscription.items.data[0]?.price.id
       let tier: SubscriptionTier = 'free'
 
-      if (priceId === process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID ||
-          priceId === process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID) {
-        tier = 'premium'
-      } else if (priceId === process.env.STRIPE_UNLIMITED_MONTHLY_PRICE_ID ||
-                 priceId === process.env.STRIPE_UNLIMITED_YEARLY_PRICE_ID) {
-        tier = 'unlimited'
+      console.log('Determining tier for price ID:', priceId)
+
+      // Use the same price IDs from our stripe.ts configuration
+      const PRICE_ID_MAP = {
+        'price_1S7Q4zGNqirbVSGkHxQN02xl': 'premium', // Premium Monthly
+        'price_1S6ZjwCWEq8iX3p2b3V15kV7': 'premium', // Premium Yearly
+        'price_1S2lLrCWEq8iX3p2yN5YJwPE': 'unlimited', // Unlimited Monthly
+        'price_1S6ZlBCWEq8iX3p2RuX8Gz4E': 'unlimited'  // Unlimited Yearly
       }
+
+      tier = (PRICE_ID_MAP[priceId as keyof typeof PRICE_ID_MAP] as SubscriptionTier) || 'free'
+      console.log('Mapped price ID to tier:', { priceId, tier })
 
       const { error } = await supabase
         .from('user_subscriptions')
