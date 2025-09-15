@@ -34,8 +34,12 @@ export async function POST(request: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_DOMAIN || request.headers.get('origin')
 
+    // Check if we're using test vs live keys
+    const keyType = process.env.STRIPE_SECRET_KEY?.startsWith('sk_test_') ? 'test' : 'live'
+
     // Verify price exists in Stripe first
     console.log('Attempting to verify price ID:', priceId)
+    console.log('Using Stripe key type:', keyType)
     try {
       const price = await stripe.prices.retrieve(priceId)
       console.log('Price verification successful:', {
@@ -43,7 +47,8 @@ export async function POST(request: NextRequest) {
         active: price.active,
         currency: price.currency,
         amount: price.unit_amount,
-        productId: price.product
+        productId: price.product,
+        keyType
       })
 
       if (!price.active) {
@@ -55,19 +60,33 @@ export async function POST(request: NextRequest) {
       }
     } catch (priceError) {
       console.error('Price verification failed for ID:', priceId, 'Error:', priceError)
+      console.error('Stripe key type:', keyType)
 
       // More specific error handling
       if (priceError instanceof Error) {
         if (priceError.message.includes('No such price')) {
+          const keyMismatchMessage = keyType === 'live'
+            ? 'This may be a test mode price ID, but you are using live Stripe keys. Please create price IDs in your live Stripe dashboard.'
+            : 'This may be a live mode price ID, but you are using test Stripe keys. Please use test mode price IDs.'
+
           return NextResponse.json(
-            { error: `Invalid price ID: ${priceId}. This subscription plan may not be available in your region or may have been discontinued.` },
+            {
+              error: `Invalid price ID: ${priceId}`,
+              details: `The price ID does not exist in your ${keyType} Stripe environment.`,
+              suggestion: keyMismatchMessage,
+              keyType: keyType
+            },
             { status: 400 }
           )
         }
       }
 
       return NextResponse.json(
-        { error: `Failed to validate subscription plan. Please try again or contact support. Price ID: ${priceId}` },
+        {
+          error: `Failed to validate subscription plan: ${priceError instanceof Error ? priceError.message : 'Unknown error'}`,
+          priceId: priceId,
+          keyType: keyType
+        },
         { status: 400 }
       )
     }
