@@ -42,12 +42,25 @@ export default function PricingPage() {
   useEffect(() => {
     async function fetchPlans() {
       try {
-        const response = await fetch('/api/price-ids')
+        // Try the main API first
+        let response = await fetch('/api/price-ids')
+        let data = await response.json()
+
         if (!response.ok) {
-          throw new Error('Failed to fetch subscription plans')
+          console.warn('Main price-ids API failed:', data)
+          console.log('Trying fallback API...')
+
+          // Try fallback API
+          response = await fetch('/api/price-ids-fallback')
+          if (!response.ok) {
+            throw new Error('Both main and fallback APIs failed')
+          }
+          data = await response.json()
+          console.log('Using fallback subscription plans:', data)
+        } else {
+          console.log('Fetched subscription plans from main API:', data)
         }
-        const data = await response.json()
-        console.log('Fetched subscription plans:', data)
+
         setSubscriptionPlans(data.subscriptionPlans)
       } catch (error) {
         console.error('Error fetching subscription plans:', error)

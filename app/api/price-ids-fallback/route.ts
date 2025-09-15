@@ -1,50 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// Fallback price IDs based on your .env file
+const FALLBACK_PRICE_IDS = {
+  premium: {
+    monthly: 'price_1S7Q4zGNqirbVSGkHxQN02xl',
+    yearly: 'price_1S6ZjwCWEq8iX3p2b3V15kV7'
+  },
+  unlimited: {
+    monthly: 'price_1S2lLrCWEq8iX3p2yN5YJwPE',
+    yearly: 'price_1S6ZlBCWEq8iX3p2RuX8Gz4E'
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
-    // Get price IDs from environment variables
-    const priceIds = {
-      premium: {
-        monthly: process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID || '',
-        yearly: process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID || ''
-      },
-      unlimited: {
-        monthly: process.env.STRIPE_UNLIMITED_MONTHLY_PRICE_ID || '',
-        yearly: process.env.STRIPE_UNLIMITED_YEARLY_PRICE_ID || ''
-      }
-    }
-
-    // Validate that all price IDs are configured
-    const missingPriceIds = []
-    if (!priceIds.premium.monthly) missingPriceIds.push('STRIPE_PREMIUM_MONTHLY_PRICE_ID')
-    if (!priceIds.premium.yearly) missingPriceIds.push('STRIPE_PREMIUM_YEARLY_PRICE_ID')
-    if (!priceIds.unlimited.monthly) missingPriceIds.push('STRIPE_UNLIMITED_MONTHLY_PRICE_ID')
-    if (!priceIds.unlimited.yearly) missingPriceIds.push('STRIPE_UNLIMITED_YEARLY_PRICE_ID')
-
-    if (missingPriceIds.length > 0) {
-      console.error('Missing price ID environment variables:', missingPriceIds)
-      console.error('Available environment variables:', Object.keys(process.env).filter(key => key.includes('STRIPE')))
-      console.error('NODE_ENV:', process.env.NODE_ENV)
-      console.error('VERCEL_ENV:', process.env.VERCEL_ENV)
-
-      return NextResponse.json(
-        {
-          error: 'Price configuration incomplete',
-          missingPriceIds,
-          availableStripeEnvVars: Object.keys(process.env).filter(key => key.includes('STRIPE')),
-          help: 'Check your hosting platform environment variables configuration'
-        },
-        { status: 500 }
-      )
-    }
+    console.log('Using fallback price IDs due to environment variable issues')
 
     return NextResponse.json({
       success: true,
-      priceIds,
+      fallback: true,
+      priceIds: FALLBACK_PRICE_IDS,
+      message: 'Using fallback price IDs - environment variables may not be properly loaded',
       subscriptionPlans: {
         premium: {
           monthly: {
-            priceId: priceIds.premium.monthly,
+            priceId: FALLBACK_PRICE_IDS.premium.monthly,
             price: 4.99,
             interval: 'month',
             name: 'Premium Monthly',
@@ -57,7 +37,7 @@ export async function GET(request: NextRequest) {
             ]
           },
           yearly: {
-            priceId: priceIds.premium.yearly,
+            priceId: FALLBACK_PRICE_IDS.premium.yearly,
             price: 49.99,
             interval: 'year',
             name: 'Premium Yearly',
@@ -74,7 +54,7 @@ export async function GET(request: NextRequest) {
         },
         unlimited: {
           monthly: {
-            priceId: priceIds.unlimited.monthly,
+            priceId: FALLBACK_PRICE_IDS.unlimited.monthly,
             price: 12.99,
             interval: 'month',
             name: 'Unlimited Monthly',
@@ -89,7 +69,7 @@ export async function GET(request: NextRequest) {
             ]
           },
           yearly: {
-            priceId: priceIds.unlimited.yearly,
+            priceId: FALLBACK_PRICE_IDS.unlimited.yearly,
             price: 129.99,
             interval: 'year',
             name: 'Unlimited Yearly',
@@ -109,9 +89,9 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error retrieving price IDs:', error)
+    console.error('Error in fallback price IDs:', error)
     return NextResponse.json(
-      { error: 'Failed to retrieve price configuration' },
+      { error: 'Failed to retrieve fallback price configuration' },
       { status: 500 }
     )
   }
