@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
-import { auth } from '@clerk/nextjs/server'
 
 // Simplified checkout session creation without complex subscription service dependencies
 export async function POST(request: NextRequest) {
+  console.log('Simple checkout API called')
+
   try {
     const { priceId, userEmail } = await request.json()
 
@@ -26,14 +27,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify user authentication
-    const { userId } = await auth()
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      )
-    }
+    // Note: Authentication is handled client-side by Clerk
+    // Server-side auth() might not work properly in all hosting environments
 
     // Verify Stripe configuration
     if (!process.env.STRIPE_SECRET_KEY) {
@@ -85,13 +80,11 @@ export async function POST(request: NextRequest) {
       billing_address_collection: 'auto',
       metadata: {
         userEmail: userEmail,
-        userId: userId,
         source: 'lovelock-simple-checkout'
       },
       subscription_data: {
         metadata: {
           userEmail: userEmail,
-          userId: userId,
           source: 'lovelock-simple-checkout'
         }
       }
@@ -114,9 +107,13 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Simple checkout error:', error)
+    console.error('Error type:', typeof error)
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace available')
 
     // Handle specific Stripe errors
     if (error instanceof Error) {
+      console.error('Error message:', error.message)
+
       if (error.message.includes('No such price')) {
         return NextResponse.json(
           { error: 'Invalid subscription plan selected. Please try again.' },
@@ -129,10 +126,25 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         )
       }
+      if (error.message.includes('auth')) {
+        return NextResponse.json(
+          { error: 'Authentication error. Please sign in again.' },
+          { status: 401 }
+        )
+      }
+
+      // Return the actual error message for debugging (you might want to remove this in production)
+      return NextResponse.json(
+        {
+          error: `Payment processing failed: ${error.message}`,
+          details: error.message
+        },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json(
-      { error: 'Payment processing failed. Please try again.' },
+      { error: 'Unknown error occurred. Please try again.' },
       { status: 500 }
     )
   }

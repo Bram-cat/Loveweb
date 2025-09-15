@@ -33,7 +33,7 @@ export default function PricingPage() {
   const router = useRouter()
   const [isYearly, setIsYearly] = useState(false)
   const [loading, setLoading] = useState<string | null>(null)
-  const [useSimpleCheckout, setUseSimpleCheckout] = useState(true) // Use simple checkout by default
+  const [useSimpleCheckout, setUseSimpleCheckout] = useState(false) // Use original checkout by default for now
   const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlans | null>(null)
   const [plansLoading, setPlansLoading] = useState(true)
   const [plansError, setPlansError] = useState<string | null>(null)
@@ -99,6 +99,33 @@ export default function PricingPage() {
       const data = await response.json()
 
       if (!response.ok) {
+        console.error(`${endpoint} failed:`, data)
+
+        // If simple checkout fails, try the original checkout
+        if (useSimpleCheckout) {
+          console.log('Simple checkout failed, trying original checkout...')
+          const fallbackResponse = await fetch('/api/create-checkout-session', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              priceId,
+              userEmail: user.primaryEmailAddress?.emailAddress
+            }),
+          })
+
+          const fallbackData = await fallbackResponse.json()
+
+          if (!fallbackResponse.ok) {
+            throw new Error(fallbackData.error || 'Both checkout methods failed')
+          }
+
+          // Redirect with fallback data
+          window.location.href = fallbackData.url
+          return
+        }
+
         throw new Error(data.error || 'Failed to create checkout session')
       }
 

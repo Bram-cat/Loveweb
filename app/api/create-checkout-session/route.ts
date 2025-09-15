@@ -125,7 +125,12 @@ export async function POST(request: NextRequest) {
     console.error('Error creating checkout session:', error)
 
     // Handle specific Stripe errors
+    console.error('Create checkout session error:', error)
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack')
+
     if (error instanceof Error) {
+      console.error('Error message:', error.message)
+
       if (error.message.includes('No such price')) {
         return NextResponse.json(
           { error: 'Invalid subscription plan selected. Please refresh the page and try again.' },
@@ -138,6 +143,15 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         )
       }
+
+      // Return detailed error for debugging
+      return NextResponse.json(
+        {
+          error: `Payment processing failed: ${error.message}`,
+          details: error.message
+        },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json(
