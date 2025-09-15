@@ -43,17 +43,35 @@ export async function GET(request: NextRequest) {
         domain: process.env.NEXT_PUBLIC_DOMAIN,
         isProduction,
         stripeKeyPresent: !!process.env.STRIPE_SECRET_KEY,
-        webhookSecretPresent: !!process.env.STRIPE_WEBHOOK_SECRET
+        webhookSecretPresent: !!process.env.STRIPE_WEBHOOK_SECRET,
+        priceIdEnvVars: {
+          premiumMonthly: !!process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID,
+          premiumYearly: !!process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID,
+          unlimitedMonthly: !!process.env.STRIPE_UNLIMITED_MONTHLY_PRICE_ID,
+          unlimitedYearly: !!process.env.STRIPE_UNLIMITED_YEARLY_PRICE_ID
+        }
       },
       priceStatuses,
       subscriptionPlans: {
         premium: {
-          monthly: { priceId: SUBSCRIPTION_PLANS.premium.monthly.priceId },
-          yearly: { priceId: SUBSCRIPTION_PLANS.premium.yearly.priceId }
+          monthly: {
+            priceId: SUBSCRIPTION_PLANS.premium.monthly.priceId,
+            fromEnv: 'STRIPE_PREMIUM_MONTHLY_PRICE_ID'
+          },
+          yearly: {
+            priceId: SUBSCRIPTION_PLANS.premium.yearly.priceId,
+            fromEnv: 'STRIPE_PREMIUM_YEARLY_PRICE_ID'
+          }
         },
         unlimited: {
-          monthly: { priceId: SUBSCRIPTION_PLANS.unlimited.monthly.priceId },
-          yearly: { priceId: SUBSCRIPTION_PLANS.unlimited.yearly.priceId }
+          monthly: {
+            priceId: SUBSCRIPTION_PLANS.unlimited.monthly.priceId,
+            fromEnv: 'STRIPE_UNLIMITED_MONTHLY_PRICE_ID'
+          },
+          yearly: {
+            priceId: SUBSCRIPTION_PLANS.unlimited.yearly.priceId,
+            fromEnv: 'STRIPE_UNLIMITED_YEARLY_PRICE_ID'
+          }
         }
       }
     })

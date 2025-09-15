@@ -5,19 +5,39 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   typescript: true,
 })
 
-// Price IDs configuration - CORRECTED BASED ON STRIPE DASHBOARD
+// Price IDs configuration from environment variables
 const PRICE_IDS = {
   premium: {
-    monthly: 'price_1S7Q4zGNqirbVSGkHxQN02xl', // Corrected Premium Monthly price ID from Stripe dashboard
-    yearly: 'price_1S6ZjwCWEq8iX3p2b3V15kV7',  // Premium Yearly price ID
+    monthly: process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID || '',
+    yearly: process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID || '',
   },
   unlimited: {
-    monthly: 'price_1S2lLrCWEq8iX3p2yN5YJwPE', // Unlimited Monthly price ID
-    yearly: 'price_1S6ZlBCWEq8iX3p2RuX8Gz4E'   // Unlimited Yearly price ID
+    monthly: process.env.STRIPE_UNLIMITED_MONTHLY_PRICE_ID || '',
+    yearly: process.env.STRIPE_UNLIMITED_YEARLY_PRICE_ID || ''
   }
 }
 
-console.log('Stripe price IDs configured:', PRICE_IDS)
+// Validate that all price IDs are configured
+const missingPriceIds = []
+if (!PRICE_IDS.premium.monthly) missingPriceIds.push('STRIPE_PREMIUM_MONTHLY_PRICE_ID')
+if (!PRICE_IDS.premium.yearly) missingPriceIds.push('STRIPE_PREMIUM_YEARLY_PRICE_ID')
+if (!PRICE_IDS.unlimited.monthly) missingPriceIds.push('STRIPE_UNLIMITED_MONTHLY_PRICE_ID')
+if (!PRICE_IDS.unlimited.yearly) missingPriceIds.push('STRIPE_UNLIMITED_YEARLY_PRICE_ID')
+
+if (missingPriceIds.length > 0) {
+  console.error('Missing required environment variables:', missingPriceIds)
+}
+
+console.log('Stripe price IDs configured from environment:', {
+  premium: {
+    monthly: PRICE_IDS.premium.monthly ? '✅ Set' : '❌ Missing',
+    yearly: PRICE_IDS.premium.yearly ? '✅ Set' : '❌ Missing'
+  },
+  unlimited: {
+    monthly: PRICE_IDS.unlimited.monthly ? '✅ Set' : '❌ Missing',
+    yearly: PRICE_IDS.unlimited.yearly ? '✅ Set' : '❌ Missing'
+  }
+})
 
 // Client-side accessible price IDs - these need to be hardcoded or loaded from a server endpoint
 // Since price IDs are not sensitive, we can include them directly

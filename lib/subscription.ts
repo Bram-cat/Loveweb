@@ -345,15 +345,24 @@ export class SubscriptionService {
 
       console.log('Determining tier for price ID:', priceId)
 
-      // Use the same price IDs from our stripe.ts configuration
-      const PRICE_ID_MAP = {
-        'price_1S7Q4zGNqirbVSGkHxQN02xl': 'premium', // Premium Monthly
-        'price_1S6ZjwCWEq8iX3p2b3V15kV7': 'premium', // Premium Yearly
-        'price_1S2lLrCWEq8iX3p2yN5YJwPE': 'unlimited', // Unlimited Monthly
-        'price_1S6ZlBCWEq8iX3p2RuX8Gz4E': 'unlimited'  // Unlimited Yearly
+      // Map price IDs to tiers using environment variables
+      const PRICE_ID_MAP: Record<string, SubscriptionTier> = {}
+
+      // Build the map from environment variables
+      if (process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID) {
+        PRICE_ID_MAP[process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID] = 'premium'
+      }
+      if (process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID) {
+        PRICE_ID_MAP[process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID] = 'premium'
+      }
+      if (process.env.STRIPE_UNLIMITED_MONTHLY_PRICE_ID) {
+        PRICE_ID_MAP[process.env.STRIPE_UNLIMITED_MONTHLY_PRICE_ID] = 'unlimited'
+      }
+      if (process.env.STRIPE_UNLIMITED_YEARLY_PRICE_ID) {
+        PRICE_ID_MAP[process.env.STRIPE_UNLIMITED_YEARLY_PRICE_ID] = 'unlimited'
       }
 
-      tier = (PRICE_ID_MAP[priceId as keyof typeof PRICE_ID_MAP] as SubscriptionTier) || 'free'
+      tier = PRICE_ID_MAP[priceId] || 'free'
       console.log('Mapped price ID to tier:', { priceId, tier })
 
       const { error } = await supabase
