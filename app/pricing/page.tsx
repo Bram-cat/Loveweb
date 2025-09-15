@@ -3,9 +3,30 @@
 import { useUser, SignInButton, SignUpButton } from '@clerk/nextjs'
 import { motion } from 'framer-motion'
 import { Check, Crown, Heart, Sparkles, Star, Zap, Shield, Calculator } from 'lucide-react'
-import { useState } from 'react'
-import { SUBSCRIPTION_PLANS, formatPrice } from '@/lib/stripe'
+import { useState, useEffect } from 'react'
+import { formatPrice } from '@/lib/stripe'
 import { useRouter } from 'next/navigation'
+
+// Types for subscription plans
+interface SubscriptionPlan {
+  priceId: string
+  price: number
+  interval: string
+  name: string
+  originalPrice?: number
+  features: string[]
+}
+
+interface SubscriptionPlans {
+  premium: {
+    monthly: SubscriptionPlan
+    yearly: SubscriptionPlan
+  }
+  unlimited: {
+    monthly: SubscriptionPlan
+    yearly: SubscriptionPlan
+  }
+}
 
 export default function PricingPage() {
   const { user, isLoaded } = useUser()
@@ -13,9 +34,31 @@ export default function PricingPage() {
   const [isYearly, setIsYearly] = useState(false)
   const [loading, setLoading] = useState<string | null>(null)
   const [useSimpleCheckout, setUseSimpleCheckout] = useState(true) // Use simple checkout by default
+  const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlans | null>(null)
+  const [plansLoading, setPlansLoading] = useState(true)
+  const [plansError, setPlansError] = useState<string | null>(null)
 
-  // Debug: Log subscription plans to check if price IDs are loaded
-  console.log('SUBSCRIPTION_PLANS:', SUBSCRIPTION_PLANS)
+  // Fetch subscription plans from API
+  useEffect(() => {
+    async function fetchPlans() {
+      try {
+        const response = await fetch('/api/price-ids')
+        if (!response.ok) {
+          throw new Error('Failed to fetch subscription plans')
+        }
+        const data = await response.json()
+        console.log('Fetched subscription plans:', data)
+        setSubscriptionPlans(data.subscriptionPlans)
+      } catch (error) {
+        console.error('Error fetching subscription plans:', error)
+        setPlansError(error instanceof Error ? error.message : 'Failed to load subscription plans')
+      } finally {
+        setPlansLoading(false)
+      }
+    }
+
+    fetchPlans()
+  }, [])
 
   const handleSubscribe = async (priceId: string, planName: string) => {
     if (!user) {
@@ -70,10 +113,33 @@ export default function PricingPage() {
     }
   }
 
-  if (!isLoaded) {
+  if (!isLoaded || plansLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="spinner"></div>
+        <div className="text-center">
+          <div className="spinner mb-4"></div>
+          <p className="text-white">Loading subscription plans...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (plansError || !subscriptionPlans) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <div className="text-red-400 mb-4">
+            <span className="text-6xl">⚠️</span>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-4">Unable to Load Plans</h2>
+          <p className="text-gray-300 mb-6">{plansError || 'Failed to load subscription plans'}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-gradient-to-r from-pink-500 to-purple-600 px-6 py-3 rounded-xl text-white font-semibold btn-cosmic hover:shadow-lg transition-all"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     )
   }
@@ -101,13 +167,13 @@ export default function PricingPage() {
     },
     {
       tier: 'premium',
-      name: isYearly ? 'Premium Yearly' : 'Premium Monthly',
-      price: isYearly ? SUBSCRIPTION_PLANS.premium.yearly.price : SUBSCRIPTION_PLANS.premium.monthly.price,
-      originalPrice: isYearly ? SUBSCRIPTION_PLANS.premium.yearly.originalPrice : null,
+      name: isYearly ? subscriptionPlans.premium.yearly.name : subscriptionPlans.premium.monthly.name,
+      price: isYearly ? subscriptionPlans.premium.yearly.price : subscriptionPlans.premium.monthly.price,
+      originalPrice: isYearly ? subscriptionPlans.premium.yearly.originalPrice : null,
       interval: isYearly ? 'year' : 'month',
-      priceId: isYearly ? SUBSCRIPTION_PLANS.premium.yearly.priceId : SUBSCRIPTION_PLANS.premium.monthly.priceId,
+      priceId: isYearly ? subscriptionPlans.premium.yearly.priceId : subscriptionPlans.premium.monthly.priceId,
       description: 'Perfect for regular users',
-      features: isYearly ? SUBSCRIPTION_PLANS.premium.yearly.features : SUBSCRIPTION_PLANS.premium.monthly.features,
+      features: isYearly ? subscriptionPlans.premium.yearly.features : subscriptionPlans.premium.monthly.features,
       cta: 'Start Premium',
       highlight: true,
       icon: Sparkles,
@@ -115,13 +181,13 @@ export default function PricingPage() {
     },
     {
       tier: 'unlimited',
-      name: isYearly ? 'Unlimited Yearly' : 'Unlimited Monthly',
-      price: isYearly ? SUBSCRIPTION_PLANS.unlimited.yearly.price : SUBSCRIPTION_PLANS.unlimited.monthly.price,
-      originalPrice: isYearly ? SUBSCRIPTION_PLANS.unlimited.yearly.originalPrice : null,
+      name: isYearly ? subscriptionPlans.unlimited.yearly.name : subscriptionPlans.unlimited.monthly.name,
+      price: isYearly ? subscriptionPlans.unlimited.yearly.price : subscriptionPlans.unlimited.monthly.price,
+      originalPrice: isYearly ? subscriptionPlans.unlimited.yearly.originalPrice : null,
       interval: isYearly ? 'year' : 'month',
-      priceId: isYearly ? SUBSCRIPTION_PLANS.unlimited.yearly.priceId : SUBSCRIPTION_PLANS.unlimited.monthly.priceId,
+      priceId: isYearly ? subscriptionPlans.unlimited.yearly.priceId : subscriptionPlans.unlimited.monthly.priceId,
       description: 'For power users who want everything',
-      features: isYearly ? SUBSCRIPTION_PLANS.unlimited.yearly.features : SUBSCRIPTION_PLANS.unlimited.monthly.features,
+      features: isYearly ? subscriptionPlans.unlimited.yearly.features : subscriptionPlans.unlimited.monthly.features,
       cta: 'Go Unlimited',
       highlight: false,
       icon: Crown,

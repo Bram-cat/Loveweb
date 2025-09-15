@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
-import { SUBSCRIPTION_PLANS } from '@/lib/stripe'
+import { stripe, PRICE_IDS } from '@/lib/stripe'
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,10 +7,10 @@ export async function GET(request: NextRequest) {
                         process.env.NEXT_PUBLIC_DOMAIN?.includes('lovelock.it.com')
 
     const priceIds = [
-      SUBSCRIPTION_PLANS.premium.monthly.priceId,
-      SUBSCRIPTION_PLANS.premium.yearly.priceId,
-      SUBSCRIPTION_PLANS.unlimited.monthly.priceId,
-      SUBSCRIPTION_PLANS.unlimited.yearly.priceId,
+      PRICE_IDS.premium.monthly,
+      PRICE_IDS.premium.yearly,
+      PRICE_IDS.unlimited.monthly,
+      PRICE_IDS.unlimited.yearly,
     ]
 
     const priceStatuses = []
@@ -52,25 +51,29 @@ export async function GET(request: NextRequest) {
         }
       },
       priceStatuses,
-      subscriptionPlans: {
+      priceIdsConfiguration: {
         premium: {
           monthly: {
-            priceId: SUBSCRIPTION_PLANS.premium.monthly.priceId,
-            fromEnv: 'STRIPE_PREMIUM_MONTHLY_PRICE_ID'
+            priceId: PRICE_IDS.premium.monthly,
+            fromEnv: 'STRIPE_PREMIUM_MONTHLY_PRICE_ID',
+            configured: !!PRICE_IDS.premium.monthly
           },
           yearly: {
-            priceId: SUBSCRIPTION_PLANS.premium.yearly.priceId,
-            fromEnv: 'STRIPE_PREMIUM_YEARLY_PRICE_ID'
+            priceId: PRICE_IDS.premium.yearly,
+            fromEnv: 'STRIPE_PREMIUM_YEARLY_PRICE_ID',
+            configured: !!PRICE_IDS.premium.yearly
           }
         },
         unlimited: {
           monthly: {
-            priceId: SUBSCRIPTION_PLANS.unlimited.monthly.priceId,
-            fromEnv: 'STRIPE_UNLIMITED_MONTHLY_PRICE_ID'
+            priceId: PRICE_IDS.unlimited.monthly,
+            fromEnv: 'STRIPE_UNLIMITED_MONTHLY_PRICE_ID',
+            configured: !!PRICE_IDS.unlimited.monthly
           },
           yearly: {
-            priceId: SUBSCRIPTION_PLANS.unlimited.yearly.priceId,
-            fromEnv: 'STRIPE_UNLIMITED_YEARLY_PRICE_ID'
+            priceId: PRICE_IDS.unlimited.yearly,
+            fromEnv: 'STRIPE_UNLIMITED_YEARLY_PRICE_ID',
+            configured: !!PRICE_IDS.unlimited.yearly
           }
         }
       }

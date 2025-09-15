@@ -39,74 +39,12 @@ console.log('Stripe price IDs configured from environment:', {
   }
 })
 
-// Client-side accessible price IDs - these need to be hardcoded or loaded from a server endpoint
-// Since price IDs are not sensitive, we can include them directly
-export const SUBSCRIPTION_PLANS = {
-  premium: {
-    monthly: {
-      priceId: PRICE_IDS.premium.monthly,
-      price: 4.99,
-      interval: 'month' as const,
-      name: 'Premium Monthly',
-      features: [
-        'Up to 25 Numerology readings per month',
-        'Up to 15 Love Match analyses per month',
-        'Up to 10 Trust Assessments per month',
-        'Advanced AI insights',
-        'Priority support'
-      ]
-    },
-    yearly: {
-      priceId: PRICE_IDS.premium.yearly,
-      price: 49.99,
-      interval: 'year' as const,
-      name: 'Premium Yearly',
-      originalPrice: 59.88,
-      features: [
-        'Up to 25 Numerology readings per month',
-        'Up to 15 Love Match analyses per month',
-        'Up to 10 Trust Assessments per month',
-        'Advanced AI insights',
-        'Priority support',
-        'Save $9.89/year'
-      ]
-    }
-  },
-  unlimited: {
-    monthly: {
-      priceId: PRICE_IDS.unlimited.monthly,
-      price: 12.99,
-      interval: 'month' as const,
-      name: 'Unlimited Monthly',
-      features: [
-        'Unlimited Numerology readings',
-        'Unlimited Love Match analyses',
-        'Unlimited Trust Assessments',
-        'Advanced AI insights',
-        'Priority support',
-        'Early access to new features',
-        'Export capabilities'
-      ]
-    },
-    yearly: {
-      priceId: PRICE_IDS.unlimited.yearly,
-      price: 129.99,
-      interval: 'year' as const,
-      name: 'Unlimited Yearly',
-      originalPrice: 155.88,
-      features: [
-        'Unlimited Numerology readings',
-        'Unlimited Love Match analyses',
-        'Unlimited Trust Assessments',
-        'Advanced AI insights',
-        'Priority support',
-        'Early access to new features',
-        'Export capabilities',
-        'Save $25.89/year'
-      ]
-    }
-  }
-}
+// Note: SUBSCRIPTION_PLANS is now provided via API endpoint /api/price-ids
+// This ensures price IDs are loaded from environment variables on the server-side
+// and made available to client-side components securely
+
+// Export price IDs for server-side use only
+export { PRICE_IDS }
 
 export const USAGE_LIMITS = {
   free: {
