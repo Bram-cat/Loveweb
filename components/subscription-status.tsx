@@ -225,8 +225,8 @@ export function SubscriptionStatus() {
             )
           })}
 
-          <div className="text-xs text-gray-500 mt-4">
-            Usage resets on: {formatDate(usage.resetDate)}
+          <div className="text-xs text-gray-400 mt-4">
+            Usage resets monthly on the 1st
           </div>
         </div>
       </div>

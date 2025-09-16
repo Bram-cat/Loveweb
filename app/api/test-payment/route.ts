@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { SubscriptionService } from '@/lib/subscription'
+import { ProfileSubscriptionService } from '@/lib/profile-subscription'
 
 // Test endpoint to simulate successful payment completion
 // This allows testing subscription updates without actual Stripe payments
@@ -67,8 +67,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Update the subscription in our database
-    await SubscriptionService.updateSubscriptionFromStripe(mockSubscription as any)
+    // Update the subscription in our database using the new service
+    await ProfileSubscriptionService.createSubscription(
+      clerkId,
+      tier as 'premium' | 'unlimited',
+      interval as 'month' | 'year',
+      mockSubscription.id
+    )
 
     console.log(`Test payment completed for user ${clerkId}: ${tier} ${interval}ly`)
 
@@ -126,7 +131,7 @@ export async function DELETE(request: NextRequest) {
       }
     }
 
-    await SubscriptionService.updateSubscriptionFromStripe(mockSubscription as any)
+    await ProfileSubscriptionService.cancelSubscription(clerkId)
 
     console.log(`Test subscription cancelled for user ${clerkId}`)
 

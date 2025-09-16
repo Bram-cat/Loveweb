@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { stripe } from '@/lib/stripe'
-import { SubscriptionService } from '@/lib/subscription'
+import { ProfileSubscriptionService } from '@/lib/profile-subscription'
 import Stripe from 'stripe'
 
 export async function POST(request: NextRequest) {
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
           const subscription = await stripe.subscriptions.retrieve(
             session.subscription as string
           )
-          await SubscriptionService.updateSubscriptionFromStripe(subscription)
+          await ProfileSubscriptionService.updateSubscriptionFromStripe(subscription)
         }
         break
       }
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
           const subscription = await stripe.subscriptions.retrieve(
             invoice.subscription as string
           )
-          await SubscriptionService.updateSubscriptionFromStripe(subscription)
+          await ProfileSubscriptionService.updateSubscriptionFromStripe(subscription)
         }
         break
       }
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
           const subscription = await stripe.subscriptions.retrieve(
             invoice.subscription as string
           )
-          await SubscriptionService.updateSubscriptionFromStripe(subscription)
+          await ProfileSubscriptionService.updateSubscriptionFromStripe(subscription)
         }
         break
       }

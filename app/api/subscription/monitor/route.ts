@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
-import { SubscriptionService } from '@/lib/subscription'
+import { ProfileSubscriptionService } from '@/lib/profile-subscription'
 
 // API endpoint to monitor and handle subscription expirations
 // This should be called by a cron job or scheduled task
@@ -21,11 +21,11 @@ export async function POST(request: NextRequest) {
 
     // Find subscriptions that have expired
     const { data: expiredSubscriptions, error } = await supabase
-      .from('user_subscriptions')
+      .from('subscriptions')
       .select('*')
       .eq('status', 'active')
-      .lt('current_period_end', new Date().toISOString())
-      .not('tier', 'eq', 'free')
+      .lt('ends_at', new Date().toISOString())
+      .not('subscription_type', 'eq', 'free')
 
     if (error) {
       throw error
@@ -38,35 +38,21 @@ export async function POST(request: NextRequest) {
     if (expiredSubscriptions && expiredSubscriptions.length > 0) {
       for (const subscription of expiredSubscriptions) {
         try {
-          // Update subscription to free tier
-          const { error: updateError } = await supabase
-            .from('user_subscriptions')
-            .update({
-              tier: 'free',
-              status: 'canceled',
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', subscription.id)
-
-          if (updateError) {
-            throw updateError
-          }
-
-          // Reset usage to free tier limits if needed
-          await SubscriptionService.resetUsage(subscription.clerk_id)
+          // Downgrade expired subscription using new service
+          await ProfileSubscriptionService.downgradeExpiredSubscription(subscription.user_id)
 
           results.push({
-            clerkId: subscription.clerk_id,
-            previousTier: subscription.tier,
+            clerkId: subscription.user_id,
+            previousTier: subscription.subscription_type,
             status: 'downgraded_to_free',
-            expiredAt: subscription.current_period_end
+            expiredAt: subscription.ends_at
           })
 
-          console.log(`Downgraded expired subscription for user ${subscription.clerk_id}`)
+          console.log(`Downgraded expired subscription for user ${subscription.user_id}`)
         } catch (error) {
-          console.error(`Failed to handle expired subscription for user ${subscription.clerk_id}:`, error)
+          console.error(`Failed to handle expired subscription for user ${subscription.user_id}:`, error)
           results.push({
-            clerkId: subscription.clerk_id,
+            clerkId: subscription.user_id,
             status: 'error',
             error: error instanceof Error ? error.message : 'Unknown error'
           })
@@ -79,12 +65,12 @@ export async function POST(request: NextRequest) {
     sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7)
 
     const { data: expiringSubscriptions, error: expiringError } = await supabase
-      .from('user_subscriptions')
+      .from('subscriptions')
       .select('*')
       .eq('status', 'active')
-      .lt('current_period_end', sevenDaysFromNow.toISOString())
-      .gt('current_period_end', new Date().toISOString())
-      .not('tier', 'eq', 'free')
+      .lt('ends_at', sevenDaysFromNow.toISOString())
+      .gt('ends_at', new Date().toISOString())
+      .not('subscription_type', 'eq', 'free')
 
     if (expiringError) {
       console.error('Error fetching expiring subscriptions:', expiringError)
@@ -92,14 +78,14 @@ export async function POST(request: NextRequest) {
 
     const expiringWarnings = expiringSubscriptions?.map(sub => {
       const daysUntilExpiry = Math.ceil(
-        (new Date(sub.current_period_end).getTime() - new Date().getTime())
+        (new Date(sub.ends_at).getTime() - new Date().getTime())
         / (1000 * 60 * 60 * 24)
       )
       return {
-        clerkId: sub.clerk_id,
-        tier: sub.tier,
+        clerkId: sub.user_id,
+        tier: sub.subscription_type,
         daysUntilExpiry,
-        expiresAt: sub.current_period_end
+        expiresAt: sub.ends_at
       }
     }) || []
 
