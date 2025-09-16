@@ -49,13 +49,13 @@ export { PRICE_IDS }
 export const USAGE_LIMITS = {
   free: {
     numerology: 3,
-    loveMatch: 2,
-    trustAssessment: 1
+    loveMatch: 3,
+    trustAssessment: 3
   },
   premium: {
-    numerology: 25,
-    loveMatch: 15,
-    trustAssessment: 10
+    numerology: 50,
+    loveMatch: 50,
+    trustAssessment: 50
   },
   unlimited: {
     numerology: -1, // Unlimited

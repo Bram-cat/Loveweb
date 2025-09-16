@@ -362,7 +362,16 @@ export class SubscriptionService {
         PRICE_ID_MAP[process.env.STRIPE_UNLIMITED_YEARLY_PRICE_ID] = 'unlimited'
       }
 
-      tier = PRICE_ID_MAP[priceId] || 'free'
+      // Handle test mode price IDs
+      if (priceId?.startsWith('price_test_')) {
+        if (priceId.includes('premium')) {
+          tier = 'premium'
+        } else if (priceId.includes('unlimited')) {
+          tier = 'unlimited'
+        }
+      } else {
+        tier = PRICE_ID_MAP[priceId] || 'free'
+      }
       console.log('Mapped price ID to tier:', { priceId, tier })
 
       const { error } = await supabase
