@@ -197,9 +197,9 @@ export function SubscriptionStatus() {
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Usage Statistics</h3>
         <div className="space-y-4">
-          {['numerology', 'loveMatch', 'trustAssessment'].map((feature) => {
-            const used = usage[feature as keyof typeof usage]
-            const limit = limits[feature as keyof typeof limits]
+          {(['numerology', 'loveMatch', 'trustAssessment'] as const).map((feature) => {
+            const used = usage[feature] as number
+            const limit = limits[feature] as number
             const percentage = getUsagePercentage(used, limit)
             const color = getUsageColor(used, limit)
 
