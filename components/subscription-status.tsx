@@ -83,7 +83,7 @@ export function SubscriptionStatus() {
             Retry
           </Button>
         </div>
-      </Card>
+      </div>
     )
   }
 
@@ -135,10 +135,10 @@ export function SubscriptionStatus() {
   return (
     <div className="space-y-4">
       {/* Subscription Overview */}
-      <Card className="p-6">
+      <div className="glass p-8 rounded-3xl">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h3 className="text-lg font-semibold mb-2">Subscription Status</h3>
+            <h3 className="text-2xl font-bold text-white mb-2">Subscription Status</h3>
             <div className="flex gap-2 mb-2">
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${getTierColor(subscription.tier)}`}>
                 {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
@@ -191,11 +191,11 @@ export function SubscriptionStatus() {
             </p>
           </div>
         )}
-      </Card>
+      </div>
 
       {/* Usage Statistics */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Usage Statistics</h3>
+      <div className="glass p-8 rounded-3xl">
+        <h3 className="text-2xl font-bold text-white mb-4">Usage Statistics</h3>
         <div className="space-y-4">
           {(['numerology', 'loveMatch', 'trustAssessment'] as const).map((feature) => {
             const used = usage[feature] as number
@@ -229,12 +229,12 @@ export function SubscriptionStatus() {
             Usage resets on: {formatDate(usage.resetDate)}
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Test Mode Actions */}
       {process.env.NODE_ENV === 'development' && (
-        <Card className="p-6 border-dashed border-blue-200 bg-blue-50">
-          <h3 className="text-lg font-semibold mb-4 text-blue-800">Test Mode Actions</h3>
+        <div className="glass p-8 rounded-3xl border-dashed border-blue-300">
+          <h3 className="text-2xl font-bold text-white mb-4">Test Mode Actions</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <TestPaymentButton
               tier="premium"

@@ -22,11 +22,31 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get the correct price ID from environment variables
+    const getPriceId = (tier: string, interval: string) => {
+      if (tier === 'premium' && interval === 'month') {
+        return process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID
+      }
+      if (tier === 'premium' && interval === 'year') {
+        return process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID
+      }
+      if (tier === 'unlimited' && interval === 'month') {
+        return process.env.STRIPE_UNLIMITED_MONTHLY_PRICE_ID
+      }
+      if (tier === 'unlimited' && interval === 'year') {
+        return process.env.STRIPE_UNLIMITED_YEARLY_PRICE_ID
+      }
+      return `price_test_${tier}_${interval}ly` // fallback
+    }
+
     // Create a mock Stripe subscription object
     const now = Math.floor(Date.now() / 1000)
     const periodEnd = interval === 'year' ?
       now + (365 * 24 * 60 * 60) : // 1 year from now
       now + (30 * 24 * 60 * 60)    // 30 days from now
+
+    const priceId = getPriceId(tier, interval)
+    console.log(`Creating test subscription for ${clerkId}: ${tier} ${interval}ly with price ID: ${priceId}`)
 
     const mockSubscription = {
       id: `sub_test_${Date.now()}`,
@@ -41,7 +61,7 @@ export async function POST(request: NextRequest) {
       items: {
         data: [{
           price: {
-            id: `price_test_${tier}_${interval}ly`,
+            id: priceId,
           }
         }]
       }
