@@ -106,6 +106,49 @@ export function SubscriptionStatus() {
     }
   }
 
+  const handleDebugUser = async () => {
+    if (!user?.id) return
+
+    try {
+      const response = await fetch('/api/debug/user-subscription')
+      const data = await response.json()
+      console.log('User debug data:', data)
+      alert('Check console for debug data')
+    } catch (error) {
+      console.error('Error during debug:', error)
+    }
+  }
+
+  const handleCreatePremium = async () => {
+    if (!user?.id) return
+
+    try {
+      setLoading(true)
+      const response = await fetch('/api/debug/user-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'create_premium'
+        }),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log('Premium subscription created:', result)
+        await fetchSubscriptionStatus()
+      } else {
+        const error = await response.json()
+        console.error('Failed to create premium subscription:', error)
+      }
+    } catch (error) {
+      console.error('Error creating premium subscription:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   if (error) {
     return (
       <div className="glass p-8 rounded-3xl border-red-300">
@@ -121,14 +164,32 @@ export function SubscriptionStatus() {
               Retry
             </Button>
             {process.env.NODE_ENV === 'development' && (
-              <Button
-                onClick={handleManualSync}
-                variant="outline"
-                size="sm"
-                className="text-blue-700 border-blue-300 hover:bg-blue-100"
-              >
-                Manual Sync
-              </Button>
+              <>
+                <Button
+                  onClick={handleManualSync}
+                  variant="outline"
+                  size="sm"
+                  className="text-blue-700 border-blue-300 hover:bg-blue-100"
+                >
+                  Manual Sync
+                </Button>
+                <Button
+                  onClick={handleDebugUser}
+                  variant="outline"
+                  size="sm"
+                  className="text-purple-700 border-purple-300 hover:bg-purple-100"
+                >
+                  Debug Data
+                </Button>
+                <Button
+                  onClick={handleCreatePremium}
+                  variant="outline"
+                  size="sm"
+                  className="text-green-700 border-green-300 hover:bg-green-100"
+                >
+                  Force Premium
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -284,7 +345,7 @@ export function SubscriptionStatus() {
       {process.env.NODE_ENV === 'development' && (
         <div className="glass p-8 rounded-3xl border-dashed border-blue-300">
           <h3 className="text-2xl font-bold text-white mb-4">Test Mode Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
             <TestPaymentButton
               tier="premium"
               interval="month"
@@ -298,6 +359,35 @@ export function SubscriptionStatus() {
             <TestCancelButton
               onSuccess={fetchSubscriptionStatus}
             />
+          </div>
+          <div className="border-t border-blue-300 pt-4">
+            <h4 className="text-lg font-semibold text-white mb-3">Debug Tools</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <Button
+                onClick={handleDebugUser}
+                variant="outline"
+                size="sm"
+                className="text-purple-700 border-purple-300 hover:bg-purple-100"
+              >
+                Debug User Data
+              </Button>
+              <Button
+                onClick={handleCreatePremium}
+                variant="outline"
+                size="sm"
+                className="text-green-700 border-green-300 hover:bg-green-100"
+              >
+                Force Premium
+              </Button>
+              <Button
+                onClick={handleManualSync}
+                variant="outline"
+                size="sm"
+                className="text-blue-700 border-blue-300 hover:bg-blue-100"
+              >
+                Manual Sync
+              </Button>
+            </div>
           </div>
         </div>
       )}
