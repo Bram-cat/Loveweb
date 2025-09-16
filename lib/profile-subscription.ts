@@ -68,6 +68,10 @@ export class ProfileSubscriptionService {
         .single()
 
       if (error) {
+        if (error.code === 'PGRST116') { // No rows returned
+          console.log('Profile not found, will create default profile')
+          return null
+        }
         console.error('Error fetching user profile:', error)
         return null
       }
@@ -76,6 +80,34 @@ export class ProfileSubscriptionService {
     } catch (error) {
       console.error('Error in getUserProfile:', error)
       return null
+    }
+  }
+
+  // Create default profile for new users
+  static async createDefaultProfile(clerkId: string, email?: string): Promise<UserProfile> {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert({
+          user_id: clerkId,
+          email: email || `user-${clerkId}@example.com`,
+          full_name: `User ${clerkId.slice(0, 8)}`,
+          wants_premium: false,
+          wants_notifications: true,
+          agreed_to_terms: false,
+        })
+        .select()
+        .single()
+
+      if (error) {
+        throw error
+      }
+
+      console.log(`Created default profile for user ${clerkId}`)
+      return data
+    } catch (error) {
+      console.error('Error creating default profile:', error)
+      throw error
     }
   }
 
@@ -140,15 +172,17 @@ export class ProfileSubscriptionService {
   // Get complete subscription status
   static async getSubscriptionStatus(clerkId: string) {
     try {
-      const [profile, subscription, usage] = await Promise.all([
-        this.getUserProfile(clerkId),
+      let profile = await this.getUserProfile(clerkId)
+
+      // Create default profile if it doesn't exist
+      if (!profile) {
+        profile = await this.createDefaultProfile(clerkId)
+      }
+
+      const [subscription, usage] = await Promise.all([
         this.getUserSubscription(clerkId),
         this.getUsageStats(clerkId)
       ])
-
-      if (!profile) {
-        throw new Error('Profile not found')
-      }
 
       // Determine current tier
       let tier: SubscriptionTier = 'free'

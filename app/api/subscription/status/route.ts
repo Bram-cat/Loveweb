@@ -23,8 +23,14 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error fetching subscription status:', error)
+    console.error('Stack trace:', error instanceof Error ? error.stack : error)
+
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        userId: userId
+      },
       { status: 500 }
     )
   }
