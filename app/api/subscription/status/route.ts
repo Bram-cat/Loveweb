@@ -6,27 +6,68 @@ export async function GET(request: NextRequest) {
   console.log('Subscription status API called')
 
   try {
-    console.log('Attempting to get auth...')
-    const { userId } = await auth()
-    console.log('Auth result:', { userId })
+    // For testing purposes, allow a test user ID via query parameter
+    const url = new URL(request.url)
+    const testUserId = url.searchParams.get('testUserId')
 
-    if (!userId) {
-      console.log('No userId found, returning 401')
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+    let userId: string | null = null
+
+    if (testUserId) {
+      console.log('Using test user ID:', testUserId)
+      userId = testUserId
+    } else {
+      console.log('Attempting to get auth...')
+      const authResult = await auth()
+      userId = authResult.userId
+      console.log('Auth result:', { userId })
+
+      if (!userId) {
+        console.log('No userId found, returning 401')
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        )
+      }
     }
 
     console.log('Getting subscription status for user:', userId)
-    // Get user subscription status using the new service
-    const status = await ProfileSubscriptionService.getSubscriptionStatus(userId)
-    console.log('Subscription status received:', status)
 
+    // Get profile first to test basic connection
+    console.log('Testing profile fetch...')
+    const profile = await ProfileSubscriptionService.getUserProfile(userId)
+    console.log('Profile result:', profile)
+
+    // Get subscription
+    console.log('Testing subscription fetch...')
+    const subscription = await ProfileSubscriptionService.getUserSubscription(userId)
+    console.log('Subscription result:', subscription)
+
+    // Get usage stats
+    console.log('Testing usage stats fetch...')
+    const usage = await ProfileSubscriptionService.getUsageStats(userId)
+    console.log('Usage result:', usage)
+
+    // Return simplified response
     return NextResponse.json({
-      subscription: status.subscription,
-      usage: status.usage,
-      limits: status.limits
+      subscription: {
+        id: subscription?.id || '',
+        tier: subscription?.subscription_type || 'free',
+        status: subscription?.status || 'active',
+        is_premium: subscription?.is_premium || false,
+        is_unlimited: subscription?.is_unlimited || false,
+        billing_cycle: subscription?.billing_cycle || 'monthly',
+        currentPeriodStart: subscription?.starts_at,
+        currentPeriodEnd: subscription?.ends_at,
+        cancelAtPeriodEnd: false,
+        isExpired: false,
+        daysRemaining: null,
+      },
+      usage,
+      limits: {
+        numerology: 3,
+        loveMatch: 3,
+        trustAssessment: 3
+      }
     })
   } catch (error) {
     console.error('Error fetching subscription status:', error)

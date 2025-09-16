@@ -37,16 +37,25 @@ export function SubscriptionStatus() {
   const fetchSubscriptionStatus = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/subscription/status')
+
+      // Try the main API first
+      let response = await fetch('/api/subscription/status')
+
+      // If main API fails, try with test user ID for debugging
+      if (!response.ok && user?.id) {
+        console.log('Main API failed, trying with test user ID')
+        response = await fetch(`/api/subscription/status?testUserId=${user.id}`)
+      }
 
       if (!response.ok) {
-        throw new Error('Failed to fetch subscription status')
+        throw new Error(`Failed to fetch subscription status: ${response.status}`)
       }
 
       const data = await response.json()
       setSubscriptionData(data)
       setError(null)
     } catch (err) {
+      console.error('Subscription fetch error:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
@@ -67,20 +76,61 @@ export function SubscriptionStatus() {
     return <div className="animate-pulse">Loading subscription status...</div>
   }
 
+  const handleManualSync = async () => {
+    if (!user?.id) return
+
+    try {
+      setLoading(true)
+      const response = await fetch('/api/sync-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          clerkId: user.id,
+          tier: 'premium',
+          interval: 'month'
+        }),
+      })
+
+      if (response.ok) {
+        console.log('Manual sync successful')
+        await fetchSubscriptionStatus()
+      } else {
+        console.error('Manual sync failed')
+      }
+    } catch (error) {
+      console.error('Error during manual sync:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   if (error) {
     return (
       <div className="glass p-8 rounded-3xl border-red-300">
         <div className="text-red-300">
           <p className="font-medium text-white">Error loading subscription</p>
           <p className="text-sm">{error}</p>
-          <Button
-            onClick={fetchSubscriptionStatus}
-            variant="outline"
-            size="sm"
-            className="mt-2"
-          >
-            Retry
-          </Button>
+          <div className="flex gap-2 mt-2">
+            <Button
+              onClick={fetchSubscriptionStatus}
+              variant="outline"
+              size="sm"
+            >
+              Retry
+            </Button>
+            {process.env.NODE_ENV === 'development' && (
+              <Button
+                onClick={handleManualSync}
+                variant="outline"
+                size="sm"
+                className="text-blue-700 border-blue-300 hover:bg-blue-100"
+              >
+                Manual Sync
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     )

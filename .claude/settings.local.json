@@ -16,7 +16,8 @@
       "Bash(git push:*)",
       "Bash(netstat:*)",
       "Bash(findstr:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []
