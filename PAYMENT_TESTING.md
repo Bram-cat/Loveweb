@@ -9,11 +9,13 @@ This guide helps you test the subscription payment system without processing rea
 You have two options for testing:
 
 **Option A: Use existing environment (Live mode)**
+
 - Your current `.env` file uses live Stripe keys
 - Real payments will be processed
 - Only recommended for production testing with small amounts
 
 **Option B: Use test environment (Recommended)**
+
 - Copy `.env.test` to `.env.local`
 - Replace the placeholder test keys with your actual Stripe test keys
 - No real payments will be processed
@@ -71,8 +73,9 @@ curl -X DELETE "http://localhost:3000/api/test-payment?clerkId=your_test_user_id
 ### Method 2: UI Testing
 
 1. Add the `SubscriptionStatus` component to your dashboard:
+
    ```tsx
-   import { SubscriptionStatus } from '@/components/subscription-status'
+   import { SubscriptionStatus } from "@/components/subscription-status";
 
    export default function Dashboard() {
      return (
@@ -80,7 +83,7 @@ curl -X DELETE "http://localhost:3000/api/test-payment?clerkId=your_test_user_id
          <h1>Dashboard</h1>
          <SubscriptionStatus />
        </div>
-     )
+     );
    }
    ```
 
@@ -112,18 +115,22 @@ SELECT * FROM usage_tracking WHERE clerk_id = 'your_test_user_id';
 The system includes automatic subscription monitoring:
 
 ### Manual Trigger
+
 ```bash
 curl -X POST http://localhost:3000/api/subscription/monitor \
   -H "Authorization: Bearer dev_token_123"
 ```
 
 ### Test Mode Trigger
+
 ```bash
 curl http://localhost:3000/api/subscription/monitor?test=true
 ```
 
 ### Production Setup
+
 Set up a cron job or scheduled task to call the monitor endpoint:
+
 ```bash
 # Example cron job (daily at 2 AM)
 0 2 * * * curl -X POST https://yourdomain.com/api/subscription/monitor -H "Authorization: Bearer your_cron_token"
@@ -132,17 +139,20 @@ Set up a cron job or scheduled task to call the monitor endpoint:
 ## 🎯 Testing Scenarios
 
 ### Scenario 1: New User Flow
+
 1. User signs up (Clerk handles this)
 2. System creates free subscription automatically
 3. User upgrades to premium/unlimited
 4. Verify limits are updated
 
 ### Scenario 2: Subscription Expiration
+
 1. Create a subscription with past end date
 2. Run the monitor endpoint
 3. Verify user is downgraded to free tier
 
 ### Scenario 3: Usage Tracking
+
 1. User performs actions (numerology, love match, etc.)
 2. Check usage is incremented
 3. Verify limits are enforced
@@ -150,15 +160,18 @@ Set up a cron job or scheduled task to call the monitor endpoint:
 ## 🛠️ API Endpoints
 
 ### Test Endpoints (Development Only)
+
 - `POST /api/test-payment` - Simulate successful payment
 - `DELETE /api/test-payment?clerkId=xxx` - Simulate cancellation
 
 ### Production Endpoints
+
 - `GET /api/subscription/status` - Get user subscription status
 - `POST /api/subscription/monitor` - Monitor and handle expirations
 - `POST /api/stripe-webhook` - Handle real Stripe webhooks
 
 ### Utility Endpoints
+
 - `GET /api/price-ids` - Get available price IDs
 - `POST /api/create-checkout-session` - Create real checkout session
 
@@ -167,18 +180,22 @@ Set up a cron job or scheduled task to call the monitor endpoint:
 ### Common Issues
 
 **1. Database Connection Error**
+
 - Verify Supabase URL and keys in environment variables
 - Check if tables are created (run `supabase-functions.sql`)
 
 **2. Clerk User Not Found**
+
 - Make sure you're using a valid Clerk user ID
 - User must be signed in for protected endpoints
 
 **3. Stripe Configuration**
+
 - Verify test/live key modes match
 - Check price IDs exist in Stripe Dashboard
 
 **4. Environment Variables**
+
 - Restart development server after changing `.env` files
 - Use `.env.local` for local overrides
 

@@ -28,10 +28,9 @@ export async function GET(request: NextRequest) {
       .eq('user_id', userId)
 
     // Test database connection
-    const { data: testData, error: testError } = await supabase
+    const { count: profileCount, error: testError } = await supabase
       .from('profiles')
-      .select('count(*)')
-      .limit(1)
+      .select('*', { count: 'exact', head: true })
 
     return NextResponse.json({
       user_id: userId,
@@ -48,7 +47,7 @@ export async function GET(request: NextRequest) {
       database: {
         connected: !testError,
         error: testError?.message,
-        totalProfiles: testData?.[0]?.count || 0
+        totalProfiles: profileCount || 0
       }
     })
   } catch (error) {
