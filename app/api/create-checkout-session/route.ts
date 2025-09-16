@@ -1,11 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
     const { priceId, userEmail, userId } = await request.json()
 
     console.log('Checkout session request:', { priceId, userEmail, userId })
+
+    // Check if user already has an active subscription
+    const { data: existingSubscription, error: checkError } = await supabaseAdmin
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('status', 'active')
+      .single()
+
+    if (checkError && checkError.code !== 'PGRST116') {
+      console.error('Error checking existing subscription:', checkError)
+    }
+
+    if (existingSubscription) {
+      console.log(`User ${userId} already has an active ${existingSubscription.subscription_type} subscription`)
+      return NextResponse.json(
+        {
+          error: 'You already have an active subscription. Please cancel your current subscription before upgrading.',
+          hasActiveSubscription: true,
+          currentTier: existingSubscription.subscription_type
+        },
+        { status: 400 }
+      )
+    }
 
     if (!priceId || priceId === 'null' || priceId === null) {
       console.error('Invalid price ID received:', priceId)

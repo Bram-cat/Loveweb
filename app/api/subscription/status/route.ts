@@ -32,20 +32,43 @@ export async function GET(request: NextRequest) {
 
     console.log('Getting subscription status for user:', userId)
 
-    // Get profile first to test basic connection
-    console.log('Testing profile fetch...')
-    const profile = await ProfileSubscriptionService.getUserProfile(userId)
-    console.log('Profile result:', profile)
+    try {
+      // Get profile first to test basic connection
+      console.log('Testing profile fetch...')
+      const profile = await ProfileSubscriptionService.getUserProfile(userId)
+      console.log('Profile result:', profile)
 
-    // Get subscription
-    console.log('Testing subscription fetch...')
-    const subscription = await ProfileSubscriptionService.getUserSubscription(userId)
-    console.log('Subscription result:', subscription)
+      // Get subscription
+      console.log('Testing subscription fetch...')
+      const subscription = await ProfileSubscriptionService.getUserSubscription(userId)
+      console.log('Subscription result:', subscription)
 
-    // Get usage stats
-    console.log('Testing usage stats fetch...')
-    const usage = await ProfileSubscriptionService.getUsageStats(userId)
-    console.log('Usage result:', usage)
+      // Get usage stats
+      console.log('Testing usage stats fetch...')
+      const usage = await ProfileSubscriptionService.getUsageStats(userId)
+      console.log('Usage result:', usage)
+    } catch (serviceError) {
+      console.error('Service error:', serviceError)
+      // Return basic structure with error details
+      return NextResponse.json({
+        subscription: {
+          id: '',
+          tier: 'free',
+          status: 'active',
+          is_premium: false,
+          is_unlimited: false,
+          billing_cycle: 'monthly',
+          currentPeriodStart: null,
+          currentPeriodEnd: null,
+          cancelAtPeriodEnd: false,
+          isExpired: false,
+          daysRemaining: null,
+        },
+        usage: { numerology: 0, loveMatch: 0, trustAssessment: 0 },
+        limits: { numerology: 3, loveMatch: 3, trustAssessment: 3 },
+        error: serviceError instanceof Error ? serviceError.message : 'Service error'
+      })
+    }
 
     // Return simplified response
     return NextResponse.json({

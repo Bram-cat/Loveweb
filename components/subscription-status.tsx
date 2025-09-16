@@ -149,6 +149,40 @@ export function SubscriptionStatus() {
     }
   }
 
+  const handleFixSubscription = async () => {
+    if (!user?.id) return
+
+    try {
+      setLoading(true)
+      const response = await fetch('/api/fix-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'create_premium_subscription',
+          tier: 'premium'
+        }),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log('Subscription fixed:', result)
+        alert('Premium subscription activated successfully!')
+        await fetchSubscriptionStatus()
+      } else {
+        const error = await response.json()
+        console.error('Failed to fix subscription:', error)
+        alert(`Failed to fix subscription: ${error.details || error.error}`)
+      }
+    } catch (error) {
+      console.error('Error fixing subscription:', error)
+      alert('Error fixing subscription. Check console for details.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   if (error) {
     return (
       <div className="glass p-8 rounded-3xl border-red-300">
@@ -362,7 +396,7 @@ export function SubscriptionStatus() {
           </div>
           <div className="border-t border-blue-300 pt-4">
             <h4 className="text-lg font-semibold text-white mb-3">Debug Tools</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <Button
                 onClick={handleDebugUser}
                 variant="outline"
@@ -378,6 +412,14 @@ export function SubscriptionStatus() {
                 className="text-green-700 border-green-300 hover:bg-green-100"
               >
                 Force Premium
+              </Button>
+              <Button
+                onClick={handleFixSubscription}
+                variant="outline"
+                size="sm"
+                className="text-orange-700 border-orange-300 hover:bg-orange-100"
+              >
+                Fix Subscription
               </Button>
               <Button
                 onClick={handleManualSync}
