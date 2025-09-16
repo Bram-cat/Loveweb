@@ -4,16 +4,20 @@ import Stripe from 'stripe'
 
 export type SubscriptionTier = 'free' | 'premium' | 'unlimited'
 export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'incomplete'
+export type BillingCycle = 'monthly' | 'yearly'
 
 export interface UserProfile {
   id: string
-  clerk_id: string
+  user_id: string
   email: string | null
   full_name: string | null
   birth_date?: string | null
+  birth_time?: string | null
+  birth_location?: string | null
+  wants_premium: boolean
+  wants_notifications: boolean
+  agreed_to_terms: boolean
   onboarding_completed: boolean
-  subscription_tier: SubscriptionTier
-  subscription_status: SubscriptionStatus
   created_at: string
   updated_at: string
 }
@@ -21,14 +25,15 @@ export interface UserProfile {
 export interface UserSubscription {
   id: string
   user_id: string
-  clerk_id: string
-  stripe_customer_id?: string | null
-  stripe_subscription_id?: string | null
-  tier: SubscriptionTier
+  subscription_type: SubscriptionTier
   status: SubscriptionStatus
-  current_period_start?: string | null
-  current_period_end?: string | null
-  cancel_at_period_end: boolean
+  is_premium: boolean
+  is_unlimited: boolean
+  billing_cycle: BillingCycle
+  starts_at?: string | null
+  ends_at?: string | null
+  stripe_subscription_id?: string | null
+  stripe_customer_id?: string | null
   created_at: string
   updated_at: string
 }
@@ -59,13 +64,13 @@ export const USAGE_LIMITS = {
 
 export class ProfileSubscriptionService {
 
-  // Get user profile with subscription info
+  // Get user profile
   static async getUserProfile(clerkId: string): Promise<UserProfile | null> {
     try {
       const { data, error } = await supabaseAdmin
         .from('profiles')
         .select('*')
-        .eq('clerk_id', clerkId)
+        .eq('user_id', clerkId)
         .single()
 
       if (error) {
@@ -90,11 +95,12 @@ export class ProfileSubscriptionService {
       const { data, error } = await supabaseAdmin
         .from('profiles')
         .insert({
-          clerk_id: clerkId,
+          user_id: clerkId,
           email: email || `user-${clerkId}@example.com`,
           full_name: `User ${clerkId.slice(0, 8)}`,
-          subscription_tier: 'free',
-          subscription_status: 'active',
+          wants_premium: false,
+          wants_notifications: true,
+          agreed_to_terms: false,
           onboarding_completed: false,
         })
         .select()
@@ -112,19 +118,22 @@ export class ProfileSubscriptionService {
     }
   }
 
-  // Get user subscription from subscriptions table
+  // Get user subscription
   static async getUserSubscription(clerkId: string): Promise<UserSubscription | null> {
     try {
       const { data, error } = await supabaseAdmin
-        .from('user_subscriptions')
+        .from('subscriptions')
         .select('*')
-        .eq('clerk_id', clerkId)
+        .eq('user_id', clerkId)
         .eq('status', 'active')
         .order('created_at', { ascending: false })
         .limit(1)
         .single()
 
       if (error) {
+        if (error.code === 'PGRST116') {
+          return null // No subscription found
+        }
         console.error('Error fetching subscription:', error)
         return null
       }
@@ -136,24 +145,33 @@ export class ProfileSubscriptionService {
     }
   }
 
-  // Get usage statistics from usage_tracking table
+  // Get usage statistics from individual tables
   static async getUsageStats(clerkId: string): Promise<UsageStats> {
     try {
-      const { data, error } = await supabaseAdmin
-        .from('usage_tracking')
-        .select('numerology_count, love_match_count, trust_assessment_count')
-        .eq('clerk_id', clerkId)
-        .single()
+      const [numerologyResult, loveMatchResult, trustResult] = await Promise.all([
+        supabaseAdmin
+          .from('numerology_readings')
+          .select('id')
+          .eq('user_id', clerkId)
+          .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
 
-      if (error) {
-        console.error('Error fetching usage stats:', error)
-        return { numerology: 0, loveMatch: 0, trustAssessment: 0 }
-      }
+        supabaseAdmin
+          .from('love_matches')
+          .select('id')
+          .eq('user_id', clerkId)
+          .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
+
+        supabaseAdmin
+          .from('trust_assessments')
+          .select('id')
+          .eq('user_id', clerkId)
+          .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
+      ])
 
       return {
-        numerology: data?.numerology_count || 0,
-        loveMatch: data?.love_match_count || 0,
-        trustAssessment: data?.trust_assessment_count || 0
+        numerology: numerologyResult.data?.length || 0,
+        loveMatch: loveMatchResult.data?.length || 0,
+        trustAssessment: trustResult.data?.length || 0
       }
     } catch (error) {
       console.error('Error getting usage stats:', error)
@@ -176,23 +194,25 @@ export class ProfileSubscriptionService {
         this.getUsageStats(clerkId)
       ])
 
-      // Determine current tier
+      // Determine current tier and status
       let tier: SubscriptionTier = 'free'
       let status: SubscriptionStatus = 'active'
       let currentPeriodStart: Date | null = null
       let currentPeriodEnd: Date | null = null
       let isExpired = false
       let daysRemaining: number | null = null
+      let billingCycle: BillingCycle = 'monthly'
 
       if (subscription && subscription.status === 'active') {
-        tier = subscription.tier
+        tier = subscription.subscription_type
         status = subscription.status
+        billingCycle = subscription.billing_cycle
 
-        if (subscription.current_period_start) {
-          currentPeriodStart = new Date(subscription.current_period_start)
+        if (subscription.starts_at) {
+          currentPeriodStart = new Date(subscription.starts_at)
         }
-        if (subscription.current_period_end) {
-          currentPeriodEnd = new Date(subscription.current_period_end)
+        if (subscription.ends_at) {
+          currentPeriodEnd = new Date(subscription.ends_at)
           const now = new Date()
           isExpired = now > currentPeriodEnd
           daysRemaining = Math.ceil((currentPeriodEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
@@ -204,8 +224,8 @@ export class ProfileSubscriptionService {
             await this.downgradeExpiredSubscription(clerkId)
           }
         }
-      } else if (profile.subscription_tier !== 'free') {
-        // User has premium tier in profile but no active subscription, check if it expired
+      } else if (profile.wants_premium) {
+        // User wants premium but no active subscription
         tier = 'free'
         status = 'canceled'
       }
@@ -217,6 +237,9 @@ export class ProfileSubscriptionService {
           id: subscription?.id || '',
           tier,
           status,
+          is_premium: tier === 'premium' || tier === 'unlimited',
+          is_unlimited: tier === 'unlimited',
+          billing_cycle: billingCycle,
           currentPeriodStart: currentPeriodStart?.toISOString(),
           currentPeriodEnd: currentPeriodEnd?.toISOString(),
           cancelAtPeriodEnd: false,
@@ -238,7 +261,8 @@ export class ProfileSubscriptionService {
     clerkId: string,
     tier: 'premium' | 'unlimited',
     interval: 'month' | 'year',
-    stripeSubscriptionId?: string
+    stripeSubscriptionId?: string,
+    stripeCustomerId?: string
   ) {
     try {
       const now = new Date()
@@ -251,15 +275,14 @@ export class ProfileSubscriptionService {
         endDate.setMonth(endDate.getMonth() + 1)
       }
 
-      // Update profile to indicate the subscription tier
+      // Update profile to indicate they want premium
       const { error: profileError } = await supabaseAdmin
         .from('profiles')
         .update({
-          subscription_tier: tier,
-          subscription_status: 'active',
+          wants_premium: true,
           updated_at: now.toISOString()
         })
-        .eq('clerk_id', clerkId)
+        .eq('user_id', clerkId)
 
       if (profileError) {
         throw profileError
@@ -267,16 +290,18 @@ export class ProfileSubscriptionService {
 
       // Create subscription record
       const { data, error } = await supabaseAdmin
-        .from('user_subscriptions')
+        .from('subscriptions')
         .upsert({
-          clerk_id: clerkId,
           user_id: clerkId,
-          tier: tier,
+          subscription_type: tier,
           status: 'active',
-          current_period_start: now.toISOString(),
-          current_period_end: endDate.toISOString(),
+          is_premium: tier === 'premium' || tier === 'unlimited',
+          is_unlimited: tier === 'unlimited',
+          billing_cycle: interval === 'year' ? 'yearly' : 'monthly',
+          starts_at: now.toISOString(),
+          ends_at: endDate.toISOString(),
           stripe_subscription_id: stripeSubscriptionId,
-          cancel_at_period_end: false,
+          stripe_customer_id: stripeCustomerId,
           updated_at: now.toISOString()
         })
         .select()
@@ -303,11 +328,10 @@ export class ProfileSubscriptionService {
       const { error: profileError } = await supabaseAdmin
         .from('profiles')
         .update({
-          subscription_tier: 'free',
-          subscription_status: 'canceled',
+          wants_premium: false,
           updated_at: now.toISOString()
         })
-        .eq('clerk_id', clerkId)
+        .eq('user_id', clerkId)
 
       if (profileError) {
         throw profileError
@@ -315,12 +339,12 @@ export class ProfileSubscriptionService {
 
       // Cancel active subscriptions
       const { error } = await supabaseAdmin
-        .from('user_subscriptions')
+        .from('subscriptions')
         .update({
           status: 'canceled',
           updated_at: now.toISOString()
         })
-        .eq('clerk_id', clerkId)
+        .eq('user_id', clerkId)
         .eq('status', 'active')
 
       if (error) {
@@ -343,11 +367,10 @@ export class ProfileSubscriptionService {
       const { error: profileError } = await supabaseAdmin
         .from('profiles')
         .update({
-          subscription_tier: 'free',
-          subscription_status: 'canceled',
+          wants_premium: false,
           updated_at: now.toISOString()
         })
-        .eq('clerk_id', clerkId)
+        .eq('user_id', clerkId)
 
       if (profileError) {
         throw profileError
@@ -355,14 +378,14 @@ export class ProfileSubscriptionService {
 
       // Update subscription status
       const { error } = await supabaseAdmin
-        .from('user_subscriptions')
+        .from('subscriptions')
         .update({
           status: 'canceled',
           updated_at: now.toISOString()
         })
-        .eq('clerk_id', clerkId)
+        .eq('user_id', clerkId)
         .eq('status', 'active')
-        .lt('current_period_end', now.toISOString())
+        .lt('ends_at', now.toISOString())
 
       if (error) {
         throw error
@@ -426,7 +449,8 @@ export class ProfileSubscriptionService {
           clerkId,
           tier as 'premium' | 'unlimited',
           interval,
-          subscription.id
+          subscription.id,
+          subscription.customer as string
         )
       } else {
         // Cancel subscription
@@ -475,42 +499,25 @@ export class ProfileSubscriptionService {
   // Increment usage
   static async incrementUsage(clerkId: string, feature: 'numerology' | 'loveMatch' | 'trustAssessment'): Promise<void> {
     try {
-      // Get current usage or create if doesn't exist
-      const { data: currentUsage, error: fetchError } = await supabaseAdmin
-        .from('usage_tracking')
-        .select('*')
-        .eq('clerk_id', clerkId)
-        .single()
-
-      let updateData: any = {
-        updated_at: new Date().toISOString()
+      // Record the usage in the respective table
+      const tableMap = {
+        numerology: 'numerology_readings',
+        loveMatch: 'love_matches',
+        trustAssessment: 'trust_assessments'
       }
 
-      if (feature === 'numerology') {
-        updateData.numerology_count = (currentUsage?.numerology_count || 0) + 1
-      } else if (feature === 'loveMatch') {
-        updateData.love_match_count = (currentUsage?.love_match_count || 0) + 1
-      } else if (feature === 'trustAssessment') {
-        updateData.trust_assessment_count = (currentUsage?.trust_assessment_count || 0) + 1
-      }
+      const tableName = tableMap[feature]
 
-      const { error } = currentUsage
-        ? await supabaseAdmin
-            .from('usage_tracking')
-            .update(updateData)
-            .eq('clerk_id', clerkId)
-        : await supabaseAdmin
-            .from('usage_tracking')
-            .insert({
-              clerk_id: clerkId,
-              user_id: clerkId,
-              numerology_count: feature === 'numerology' ? 1 : 0,
-              love_match_count: feature === 'loveMatch' ? 1 : 0,
-              trust_assessment_count: feature === 'trustAssessment' ? 1 : 0,
-              reset_date: new Date().toISOString(),
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            })
+      const { error } = await supabaseAdmin
+        .from(tableName)
+        .insert({
+          user_id: clerkId,
+          [`${feature === 'loveMatch' ? 'partner_name' : feature === 'trustAssessment' ? 'assessment_data' : 'reading_type'}`]:
+            feature === 'loveMatch' ? 'Usage Count' :
+            feature === 'trustAssessment' ? {} :
+            'Usage Count',
+          created_at: new Date().toISOString()
+        })
 
       if (error) {
         throw error

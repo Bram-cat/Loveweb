@@ -3,9 +3,9 @@ import { stripe } from '@/lib/stripe'
 
 export async function POST(request: NextRequest) {
   try {
-    const { priceId, userEmail } = await request.json()
+    const { priceId, userEmail, userId } = await request.json()
 
-    console.log('Checkout session request:', { priceId, userEmail })
+    console.log('Checkout session request:', { priceId, userEmail, userId })
 
     if (!priceId || priceId === 'null' || priceId === null) {
       console.error('Invalid price ID received:', priceId)
@@ -19,6 +19,14 @@ export async function POST(request: NextRequest) {
       console.error('Missing user email')
       return NextResponse.json(
         { error: 'User email is required for checkout.' },
+        { status: 400 }
+      )
+    }
+
+    if (!userId) {
+      console.error('Missing user ID')
+      return NextResponse.json(
+        { error: 'User ID is required for checkout.' },
         { status: 400 }
       )
     }
@@ -110,11 +118,13 @@ export async function POST(request: NextRequest) {
       billing_address_collection: 'auto' as const,
       subscription_data: {
         metadata: {
+          clerk_id: userId,
           userEmail: userEmail,
           source: 'lovelockweb'
         },
       },
       metadata: {
+        clerk_id: userId,
         userEmail: userEmail,
         source: 'lovelockweb'
       }

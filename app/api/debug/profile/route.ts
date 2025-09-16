@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,19 +16,19 @@ export async function GET(request: NextRequest) {
     console.log(`Debug profile check for user: ${userId}`)
 
     // Check if profile exists
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('*')
       .eq('user_id', userId)
 
     // Check if subscription exists
-    const { data: subscription, error: subscriptionError } = await supabase
+    const { data: subscription, error: subscriptionError } = await supabaseAdmin
       .from('subscriptions')
       .select('*')
       .eq('user_id', userId)
 
     // Test database connection
-    const { count: profileCount, error: testError } = await supabase
+    const { count: profileCount, error: testError } = await supabaseAdmin
       .from('profiles')
       .select('*', { count: 'exact', head: true })
 
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('profiles')
       .upsert({
         user_id: userId,
@@ -85,6 +85,7 @@ export async function POST(request: NextRequest) {
         wants_premium: false,
         wants_notifications: true,
         agreed_to_terms: false,
+        onboarding_completed: false,
       })
       .select()
       .single()

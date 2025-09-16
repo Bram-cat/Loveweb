@@ -20,118 +20,170 @@ export type Database = {
       profiles: {
         Row: {
           id: string
-          clerk_id: string
+          user_id: string
+          email: string | null
           full_name: string | null
           birth_date: string | null
-          email: string | null
-          created_at: string
-          updated_at: string
+          birth_time: string | null
+          birth_location: string | null
+          wants_premium: boolean
+          wants_notifications: boolean
+          agreed_to_terms: boolean
           onboarding_completed: boolean
-          subscription_tier: 'free' | 'premium' | 'unlimited'
-          subscription_status: 'active' | 'canceled' | 'past_due'
+          created_at: string
+          updated_at: string
         }
         Insert: {
           id?: string
-          clerk_id: string
+          user_id: string
+          email?: string | null
           full_name?: string | null
           birth_date?: string | null
-          email?: string | null
+          birth_time?: string | null
+          birth_location?: string | null
+          wants_premium?: boolean
+          wants_notifications?: boolean
+          agreed_to_terms?: boolean
+          onboarding_completed?: boolean
           created_at?: string
           updated_at?: string
-          onboarding_completed?: boolean
-          subscription_tier?: 'free' | 'premium' | 'unlimited'
-          subscription_status?: 'active' | 'canceled' | 'past_due'
         }
         Update: {
           id?: string
-          clerk_id?: string
+          user_id?: string
+          email?: string | null
           full_name?: string | null
           birth_date?: string | null
-          email?: string | null
+          birth_time?: string | null
+          birth_location?: string | null
+          wants_premium?: boolean
+          wants_notifications?: boolean
+          agreed_to_terms?: boolean
+          onboarding_completed?: boolean
           created_at?: string
           updated_at?: string
-          onboarding_completed?: boolean
-          subscription_tier?: 'free' | 'premium' | 'unlimited'
-          subscription_status?: 'active' | 'canceled' | 'past_due'
         }
       }
-      user_subscriptions: {
+      subscriptions: {
         Row: {
           id: string
           user_id: string
-          clerk_id: string
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
-          tier: 'free' | 'premium' | 'unlimited'
+          subscription_type: 'free' | 'premium' | 'unlimited'
           status: 'active' | 'canceled' | 'past_due' | 'incomplete'
-          current_period_start: string | null
-          current_period_end: string | null
-          cancel_at_period_end: boolean
+          is_premium: boolean
+          is_unlimited: boolean
+          billing_cycle: 'monthly' | 'yearly'
+          starts_at: string | null
+          ends_at: string | null
+          stripe_subscription_id: string | null
+          stripe_customer_id: string | null
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
           user_id: string
-          clerk_id: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          tier?: 'free' | 'premium' | 'unlimited'
+          subscription_type?: 'free' | 'premium' | 'unlimited'
           status?: 'active' | 'canceled' | 'past_due' | 'incomplete'
-          current_period_start?: string | null
-          current_period_end?: string | null
-          cancel_at_period_end?: boolean
+          is_premium?: boolean
+          is_unlimited?: boolean
+          billing_cycle?: 'monthly' | 'yearly'
+          starts_at?: string | null
+          ends_at?: string | null
+          stripe_subscription_id?: string | null
+          stripe_customer_id?: string | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           user_id?: string
-          clerk_id?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          tier?: 'free' | 'premium' | 'unlimited'
+          subscription_type?: 'free' | 'premium' | 'unlimited'
           status?: 'active' | 'canceled' | 'past_due' | 'incomplete'
-          current_period_start?: string | null
-          current_period_end?: string | null
-          cancel_at_period_end?: boolean
+          is_premium?: boolean
+          is_unlimited?: boolean
+          billing_cycle?: 'monthly' | 'yearly'
+          starts_at?: string | null
+          ends_at?: string | null
+          stripe_subscription_id?: string | null
+          stripe_customer_id?: string | null
           created_at?: string
           updated_at?: string
         }
       }
-      usage_tracking: {
+      love_matches: {
         Row: {
           id: string
           user_id: string
-          clerk_id: string
-          numerology_count: number
-          love_match_count: number
-          trust_assessment_count: number
-          reset_date: string
+          partner_name: string
+          partner_birth_date: string | null
+          compatibility_score: number | null
+          match_details: any | null
           created_at: string
-          updated_at: string
         }
         Insert: {
           id?: string
           user_id: string
-          clerk_id: string
-          numerology_count?: number
-          love_match_count?: number
-          trust_assessment_count?: number
-          reset_date?: string
+          partner_name: string
+          partner_birth_date?: string | null
+          compatibility_score?: number | null
+          match_details?: any | null
           created_at?: string
-          updated_at?: string
         }
         Update: {
           id?: string
           user_id?: string
-          clerk_id?: string
-          numerology_count?: number
-          love_match_count?: number
-          trust_assessment_count?: number
-          reset_date?: string
+          partner_name?: string
+          partner_birth_date?: string | null
+          compatibility_score?: number | null
+          match_details?: any | null
           created_at?: string
-          updated_at?: string
+        }
+      }
+      numerology_readings: {
+        Row: {
+          id: string
+          user_id: string
+          reading_type: string
+          reading_data: any | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          reading_type: string
+          reading_data?: any | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          reading_type?: string
+          reading_data?: any | null
+          created_at?: string
+        }
+      }
+      trust_assessments: {
+        Row: {
+          id: string
+          user_id: string
+          assessment_data: any | null
+          trust_score: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          assessment_data?: any | null
+          trust_score?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          assessment_data?: any | null
+          trust_score?: number | null
+          created_at?: string
         }
       }
     }
