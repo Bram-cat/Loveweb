@@ -65,14 +65,14 @@ export async function POST(request: NextRequest) {
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription
         console.log(`Subscription ${event.type}:`, subscription.id)
-        await SubscriptionService.updateSubscriptionFromStripe(subscription)
+        await ProfileSubscriptionService.updateSubscriptionFromStripe(subscription)
         break
       }
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription
         console.log('Subscription deleted:', subscription.id)
-        await SubscriptionService.updateSubscriptionFromStripe(subscription)
+        await ProfileSubscriptionService.updateSubscriptionFromStripe(subscription)
         break
       }
 

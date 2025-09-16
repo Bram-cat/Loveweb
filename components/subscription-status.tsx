@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
 interface SubscriptionData {
@@ -70,9 +69,9 @@ export function SubscriptionStatus() {
 
   if (error) {
     return (
-      <Card className="p-4 border-red-200 bg-red-50">
-        <div className="text-red-700">
-          <p className="font-medium">Error loading subscription</p>
+      <div className="glass p-8 rounded-3xl border-red-300">
+        <div className="text-red-300">
+          <p className="font-medium text-white">Error loading subscription</p>
           <p className="text-sm">{error}</p>
           <Button
             onClick={fetchSubscriptionStatus}
@@ -250,7 +249,7 @@ export function SubscriptionStatus() {
               onSuccess={fetchSubscriptionStatus}
             />
           </div>
-        </Card>
+        </div>
       )}
     </div>
   )
