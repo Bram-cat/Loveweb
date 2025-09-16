@@ -6,9 +6,9 @@ export async function POST(request: NextRequest) {
   console.log('Simple checkout API called')
 
   try {
-    const { priceId, userEmail } = await request.json()
+    const { priceId, userEmail, userId } = await request.json()
 
-    console.log('Simple checkout request:', { priceId, userEmail })
+    console.log('Simple checkout request:', { priceId, userEmail, userId })
 
     // Basic validation
     if (!priceId || priceId === 'null' || priceId === null) {
@@ -23,6 +23,14 @@ export async function POST(request: NextRequest) {
       console.error('Missing user email')
       return NextResponse.json(
         { error: 'User email is required for checkout.' },
+        { status: 400 }
+      )
+    }
+
+    if (!userId) {
+      console.error('Missing user ID')
+      return NextResponse.json(
+        { error: 'User ID is required for checkout.' },
         { status: 400 }
       )
     }
@@ -79,11 +87,13 @@ export async function POST(request: NextRequest) {
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
       metadata: {
+        clerk_id: userId,
         userEmail: userEmail,
         source: 'lovelock-simple-checkout'
       },
       subscription_data: {
         metadata: {
+          clerk_id: userId,
           userEmail: userEmail,
           source: 'lovelock-simple-checkout'
         }

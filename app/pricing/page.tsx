@@ -105,7 +105,8 @@ export default function PricingPage() {
         },
         body: JSON.stringify({
           priceId,
-          userEmail: user.primaryEmailAddress?.emailAddress
+          userEmail: user.primaryEmailAddress?.emailAddress,
+          userId: user.id
         }),
       })
 
@@ -124,7 +125,8 @@ export default function PricingPage() {
             },
             body: JSON.stringify({
               priceId,
-              userEmail: user.primaryEmailAddress?.emailAddress
+              userEmail: user.primaryEmailAddress?.emailAddress,
+              userId: user.id
             }),
           })
 
