@@ -226,10 +226,25 @@ export default function DashboardPage() {
                     ))}
                   </div>
 
-                  <div className="mt-8 flex gap-4 justify-center">
+                  <div className="mt-8 flex gap-4 justify-center flex-wrap">
+                    <button
+                      onClick={handleBillingPortal}
+                      disabled={loading}
+                      className="bg-gradient-to-r from-pink-500 to-purple-600 px-6 py-3 rounded-xl text-white font-semibold btn-cosmic hover:shadow-2xl transition-all transform hover:scale-105 inline-flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Settings className="w-5 h-5" />
+                      <span>{loading ? 'Loading...' : 'Manage Subscription'}</span>
+                    </button>
+                    <button
+                      onClick={() => router.push("/pricing")}
+                      className="glass px-6 py-3 rounded-xl text-white hover:bg-white/20 transition-all inline-flex items-center space-x-2"
+                    >
+                      <Crown className="w-5 h-5" />
+                      <span>View Plans</span>
+                    </button>
                     <button
                       onClick={() => router.push("/privacy")}
-                      className="bg-gradient-to-r from-pink-500 to-purple-600 px-6 py-3 rounded-xl text-white font-semibold btn-cosmic hover:shadow-2xl transition-all transform hover:scale-105 inline-flex items-center space-x-2"
+                      className="glass px-6 py-3 rounded-xl text-white hover:bg-white/20 transition-all inline-flex items-center space-x-2"
                     >
                       <Shield className="w-5 h-5" />
                       <span>Privacy Policy</span>

@@ -33,20 +33,12 @@ export async function GET(request: NextRequest) {
     console.log('Getting subscription status for user:', userId)
 
     try {
-      // Get profile first to test basic connection
-      console.log('Testing profile fetch...')
-      const profile = await ProfileSubscriptionService.getUserProfile(userId)
-      console.log('Profile result:', profile)
+      // Get complete subscription status which includes correct limits
+      console.log('Getting complete subscription status...')
+      const statusData = await ProfileSubscriptionService.getSubscriptionStatus(userId)
+      console.log('Complete status result:', statusData)
 
-      // Get subscription
-      console.log('Testing subscription fetch...')
-      const subscription = await ProfileSubscriptionService.getUserSubscription(userId)
-      console.log('Subscription result:', subscription)
-
-      // Get usage stats
-      console.log('Testing usage stats fetch...')
-      const usage = await ProfileSubscriptionService.getUsageStats(userId)
-      console.log('Usage result:', usage)
+      return NextResponse.json(statusData)
     } catch (serviceError) {
       console.error('Service error:', serviceError)
       // Return basic structure with error details
@@ -69,29 +61,6 @@ export async function GET(request: NextRequest) {
         error: serviceError instanceof Error ? serviceError.message : 'Service error'
       })
     }
-
-    // Return simplified response
-    return NextResponse.json({
-      subscription: {
-        id: subscription?.id || '',
-        tier: subscription?.subscription_type || 'free',
-        status: subscription?.status || 'active',
-        is_premium: subscription?.is_premium || false,
-        is_unlimited: subscription?.is_unlimited || false,
-        billing_cycle: subscription?.billing_cycle || 'monthly',
-        currentPeriodStart: subscription?.starts_at,
-        currentPeriodEnd: subscription?.ends_at,
-        cancelAtPeriodEnd: false,
-        isExpired: false,
-        daysRemaining: null,
-      },
-      usage,
-      limits: {
-        numerology: 3,
-        loveMatch: 3,
-        trustAssessment: 3
-      }
-    })
   } catch (error) {
     console.error('Error fetching subscription status:', error)
     console.error('Stack trace:', error instanceof Error ? error.stack : error)

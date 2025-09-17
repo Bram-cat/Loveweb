@@ -68,6 +68,17 @@ export function SubscriptionStatus() {
     }
   }, [isLoaded, user])
 
+  // Auto-refresh subscription status periodically
+  useEffect(() => {
+    if (!isLoaded || !user) return
+
+    const interval = setInterval(() => {
+      fetchSubscriptionStatus()
+    }, 30000) // Refresh every 30 seconds
+
+    return () => clearInterval(interval)
+  }, [isLoaded, user])
+
   if (!isLoaded || !user) {
     return <div className="animate-pulse">Loading user...</div>
   }
@@ -350,21 +361,31 @@ export function SubscriptionStatus() {
             return (
               <div key={feature} className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="capitalize text-sm font-medium">
+                  <span className="capitalize text-sm font-medium text-white">
                     {feature === 'loveMatch' ? 'Love Match' :
                      feature === 'trustAssessment' ? 'Trust Assessment' :
                      feature}
                   </span>
-                  <span className="text-sm text-gray-600">
+                  <span className={`text-sm font-medium ${
+                    limit === -1 ? 'text-green-400' :
+                    percentage > 80 ? 'text-red-400' :
+                    percentage > 60 ? 'text-yellow-400' :
+                    'text-gray-300'
+                  }`}>
                     {used} / {limit === -1 ? '∞' : limit}
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-gray-600 rounded-full h-3">
                   <div
-                    className={`h-2 rounded-full transition-all duration-300 ${color}`}
+                    className={`h-3 rounded-full transition-all duration-300 ${color}`}
                     style={{ width: limit === -1 ? '100%' : `${percentage}%` }}
                   />
                 </div>
+                {limit !== -1 && percentage > 80 && (
+                  <div className="text-xs text-yellow-400">
+                    ⚠️ Getting close to your monthly limit
+                  </div>
+                )}
               </div>
             )
           })}

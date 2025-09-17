@@ -115,6 +115,24 @@ export default function PricingPage() {
       if (!response.ok) {
         console.error(`${endpoint} failed:`, data)
 
+        // Handle existing subscription case
+        if (data.hasActiveSubscription && data.billingPortalAvailable) {
+          const actionText = data.actionSuggestion === 'upgrade' ? 'Upgrade Plan' :
+                           data.actionSuggestion === 'downgrade' ? 'Manage Subscription' :
+                           'Manage Subscription'
+
+          const shouldRedirect = confirm(`${data.error}\n\nWould you like to go to your billing portal to ${actionText.toLowerCase()}?`)
+
+          if (shouldRedirect) {
+            // Redirect to dashboard where they can access billing portal
+            window.location.href = '/dashboard'
+            return
+          } else {
+            setLoading(null)
+            return
+          }
+        }
+
         // If simple checkout fails, try the original checkout
         if (useSimpleCheckout) {
           console.log('Simple checkout failed, trying original checkout...')
@@ -133,6 +151,22 @@ export default function PricingPage() {
           const fallbackData = await fallbackResponse.json()
 
           if (!fallbackResponse.ok) {
+            // Handle existing subscription in fallback too
+            if (fallbackData.hasActiveSubscription && fallbackData.billingPortalAvailable) {
+              const actionText = fallbackData.actionSuggestion === 'upgrade' ? 'Upgrade Plan' :
+                               fallbackData.actionSuggestion === 'downgrade' ? 'Manage Subscription' :
+                               'Manage Subscription'
+
+              const shouldRedirect = confirm(`${fallbackData.error}\n\nWould you like to go to your billing portal to ${actionText.toLowerCase()}?`)
+
+              if (shouldRedirect) {
+                window.location.href = '/dashboard'
+                return
+              } else {
+                setLoading(null)
+                return
+              }
+            }
             throw new Error(fallbackData.error || 'Both checkout methods failed')
           }
 

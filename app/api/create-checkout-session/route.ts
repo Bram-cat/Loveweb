@@ -22,11 +22,43 @@ export async function POST(request: NextRequest) {
 
     if (existingSubscription) {
       console.log(`User ${userId} already has an active ${existingSubscription.subscription_type} subscription`)
+
+      // Determine what action to suggest based on the current and requested tier
+      const currentTier = existingSubscription.subscription_type
+
+      // Extract tier from priceId to determine what they're trying to subscribe to
+      let requestedTier = 'free'
+      if (priceId?.includes('premium') || process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID === priceId || process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID === priceId) {
+        requestedTier = 'premium'
+      } else if (priceId?.includes('unlimited') || process.env.STRIPE_UNLIMITED_MONTHLY_PRICE_ID === priceId || process.env.STRIPE_UNLIMITED_YEARLY_PRICE_ID === priceId) {
+        requestedTier = 'unlimited'
+      }
+
+      let message = 'You already have an active subscription.'
+      let actionSuggestion = 'manage'
+
+      if (currentTier === 'premium' && requestedTier === 'unlimited') {
+        message = 'You can upgrade from Premium to Unlimited through your billing portal.'
+        actionSuggestion = 'upgrade'
+      } else if (currentTier === 'unlimited' && requestedTier === 'premium') {
+        message = 'You already have Unlimited access which includes all Premium features.'
+        actionSuggestion = 'downgrade'
+      } else if (currentTier === requestedTier) {
+        message = `You already have an active ${currentTier} subscription.`
+        actionSuggestion = 'manage'
+      } else {
+        message = 'You already have an active subscription. Use your billing portal to manage or change your plan.'
+        actionSuggestion = 'manage'
+      }
+
       return NextResponse.json(
         {
-          error: 'You already have an active subscription. Please cancel your current subscription before upgrading.',
+          error: message,
           hasActiveSubscription: true,
-          currentTier: existingSubscription.subscription_type
+          currentTier,
+          requestedTier,
+          actionSuggestion,
+          billingPortalAvailable: true
         },
         { status: 400 }
       )
