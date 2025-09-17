@@ -225,11 +225,20 @@ export async function GET(request: NextRequest) {
     console.log('Attempting to get user subscription for userId:', userId)
 
     try {
-      // Get current subscription with better error handling
-      const userSubscription = await ProfileSubscriptionService.getUserSubscription(userId)
-      console.log('User subscription result:', userSubscription)
+      // Get current subscription with timeout and better error handling
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Operation timeout')), 10000)
+      )
 
-      const subscriptionData = await ProfileSubscriptionService.getSubscriptionStatus(userId)
+      const userSubscriptionPromise = ProfileSubscriptionService.getUserSubscription(userId)
+      const subscriptionDataPromise = ProfileSubscriptionService.getSubscriptionStatus(userId)
+
+      const [userSubscription, subscriptionData] = await Promise.race([
+        Promise.all([userSubscriptionPromise, subscriptionDataPromise]),
+        timeoutPromise
+      ]) as [any, any]
+
+      console.log('User subscription result:', userSubscription)
       console.log('Subscription data result:', subscriptionData)
 
       if (!userSubscription?.stripe_subscription_id) {

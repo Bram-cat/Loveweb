@@ -128,7 +128,8 @@ export class ProfileSubscriptionService {
         return null
       }
 
-      const { data, error } = await supabaseAdmin
+      // Add timeout to database query
+      const queryPromise = supabaseAdmin
         .from('subscriptions')
         .select('*')
         .eq('user_id', clerkId)
@@ -136,6 +137,12 @@ export class ProfileSubscriptionService {
         .order('created_at', { ascending: false })
         .limit(1)
         .single()
+
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Database query timeout')), 5000)
+      )
+
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise]) as any
 
       if (error) {
         if (error.code === 'PGRST116') {
@@ -228,7 +235,9 @@ export class ProfileSubscriptionService {
       }
 
       console.log('Getting subscription and usage data...')
-      const [subscription, usage] = await Promise.all([
+
+      // Add timeout to the entire operation
+      const dataPromise = Promise.all([
         this.getUserSubscription(clerkId).catch(err => {
           console.error('Error getting user subscription:', err)
           return null
@@ -238,6 +247,12 @@ export class ProfileSubscriptionService {
           return { numerology: 0, loveMatch: 0, trustAssessment: 0 }
         })
       ])
+
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Subscription status query timeout')), 8000)
+      )
+
+      const [subscription, usage] = await Promise.race([dataPromise, timeoutPromise]) as any
 
       console.log('Subscription data:', subscription?.id || 'No subscription')
       console.log('Usage data:', usage)
