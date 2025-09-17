@@ -209,52 +209,83 @@ async function handleChangeBillingCycle(userId: string, newPriceId: string, subs
 // Get subscription management options
 export async function GET(request: NextRequest) {
   try {
+    console.log('GET /api/subscription/manage - Starting request')
+
     const { userId } = await auth()
+    console.log('Auth result - userId:', userId)
 
     if (!userId) {
+      console.log('No userId found, returning 401')
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
 
-    // Get current subscription
-    const userSubscription = await ProfileSubscriptionService.getUserSubscription(userId)
-    const subscriptionData = await ProfileSubscriptionService.getSubscriptionStatus(userId)
+    console.log('Attempting to get user subscription for userId:', userId)
 
-    if (!userSubscription?.stripe_subscription_id) {
+    try {
+      // Get current subscription with better error handling
+      const userSubscription = await ProfileSubscriptionService.getUserSubscription(userId)
+      console.log('User subscription result:', userSubscription)
+
+      const subscriptionData = await ProfileSubscriptionService.getSubscriptionStatus(userId)
+      console.log('Subscription data result:', subscriptionData)
+
+      if (!userSubscription?.stripe_subscription_id) {
+        console.log('No stripe subscription ID found, returning free tier options')
+        return NextResponse.json({
+          hasSubscription: false,
+          availableActions: ['upgrade'],
+          currentTier: 'free'
+        })
+      }
+
+      // Get available price IDs for upgrades/downgrades
+      const availableActions = []
+      const currentTier = subscriptionData.subscription.tier
+
+      // Determine available actions based on current tier
+      if (currentTier === 'free') {
+        availableActions.push('upgrade')
+      } else {
+        availableActions.push('cancel', 'change_plan', 'change_billing_cycle')
+
+        if (subscriptionData.subscription.cancelAtPeriodEnd) {
+          availableActions.push('reactivate')
+        }
+      }
+
+      console.log('Returning subscription management data:', {
+        hasSubscription: true,
+        currentTier,
+        availableActions
+      })
+
+      return NextResponse.json({
+        hasSubscription: true,
+        currentTier,
+        subscription: subscriptionData.subscription,
+        availableActions,
+        stripeSubscriptionId: userSubscription.stripe_subscription_id
+      })
+
+    } catch (serviceError) {
+      console.error('Service error in subscription management:', serviceError)
+      console.error('Service error stack:', serviceError instanceof Error ? serviceError.stack : 'No stack')
+
+      // Return basic free tier data when service fails
       return NextResponse.json({
         hasSubscription: false,
         availableActions: ['upgrade'],
-        currentTier: 'free'
+        currentTier: 'free',
+        error: 'Service temporarily unavailable'
       })
     }
 
-    // Get available price IDs for upgrades/downgrades
-    const availableActions = []
-    const currentTier = subscriptionData.subscription.tier
-
-    // Determine available actions based on current tier
-    if (currentTier === 'free') {
-      availableActions.push('upgrade')
-    } else {
-      availableActions.push('cancel', 'change_plan', 'change_billing_cycle')
-
-      if (subscriptionData.subscription.cancelAtPeriodEnd) {
-        availableActions.push('reactivate')
-      }
-    }
-
-    return NextResponse.json({
-      hasSubscription: true,
-      currentTier,
-      subscription: subscriptionData.subscription,
-      availableActions,
-      stripeSubscriptionId: userSubscription.stripe_subscription_id
-    })
-
   } catch (error) {
     console.error('Error getting subscription management options:', error)
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack')
     return NextResponse.json(
       { error: 'Failed to get subscription options', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

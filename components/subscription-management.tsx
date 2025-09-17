@@ -41,13 +41,28 @@ export function SubscriptionManagement() {
   const fetchManagementData = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/subscription/manage')
+      setError(null)
+
+      console.log('Fetching subscription management data...')
+
+      // Try the main API first
+      let response = await fetch('/api/subscription/manage')
+
+      // If main API fails, try the simple status API
+      if (!response.ok) {
+        console.log('Main API failed, trying simple status API...')
+        response = await fetch('/api/subscription/simple-status')
+      }
 
       if (!response.ok) {
-        throw new Error('Failed to fetch subscription data')
+        const errorText = await response.text()
+        console.error('API response not ok:', response.status, errorText)
+        throw new Error(`Failed to fetch subscription data: ${response.status}`)
       }
 
       const data = await response.json()
+      console.log('Subscription management data received:', data)
+
       setManagementData(data)
     } catch (err) {
       console.error('Error fetching subscription management data:', err)
