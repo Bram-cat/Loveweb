@@ -17,6 +17,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { SubscriptionStatus } from "@/components/subscription-status";
+import { SubscriptionManagement } from "@/components/subscription-management";
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser();
@@ -170,6 +171,15 @@ export default function DashboardPage() {
                 transition={{ delay: 0.2 }}
               >
                 <SubscriptionStatus />
+              </motion.div>
+
+              {/* Subscription Management */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <SubscriptionManagement />
               </motion.div>
 
               {/* App Features */}
