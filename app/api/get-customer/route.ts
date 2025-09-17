@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
+import { ProfileSubscriptionService } from '@/lib/profile-subscription'
+import { stripe } from '@/lib/stripe'
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,25 +14,46 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // In a real implementation, you would fetch this from your database
-    // For now, we'll return mock data to demonstrate the structure
-    const customer = {
-      id: 'cus_mock_customer_id',
-      email: 'user@example.com',
-      subscription: {
-        id: 'sub_mock_subscription_id',
-        status: 'active',
-        tier: 'free',
-        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-        cancelAtPeriodEnd: false
+    console.log('Getting customer information for user:', userId)
+
+    // Get subscription status which includes all the information we need
+    const subscriptionData = await ProfileSubscriptionService.getSubscriptionStatus(userId)
+    const { subscription, profile } = subscriptionData
+
+    // Try to get Stripe customer information if we have a stripe_customer_id
+    const userSubscription = await ProfileSubscriptionService.getUserSubscription(userId)
+    let stripeCustomer = null
+
+    if (userSubscription?.stripe_customer_id) {
+      try {
+        stripeCustomer = await stripe.customers.retrieve(userSubscription.stripe_customer_id)
+        console.log('Retrieved Stripe customer:', stripeCustomer.id)
+      } catch (stripeError) {
+        console.error('Error retrieving Stripe customer:', stripeError)
       }
     }
 
+    // Format customer data for the dashboard
+    const customer = {
+      id: userSubscription?.stripe_customer_id || `mock_${userId}`,
+      email: profile?.email || 'user@example.com',
+      subscription: {
+        id: subscription.id || `mock_sub_${userId}`,
+        status: subscription.status,
+        tier: subscription.tier,
+        currentPeriodEnd: subscription.currentPeriodEnd ? new Date(subscription.currentPeriodEnd) : null,
+        cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+        is_premium: subscription.is_premium,
+        is_unlimited: subscription.is_unlimited
+      }
+    }
+
+    console.log('Returning customer data:', customer)
     return NextResponse.json(customer)
   } catch (error) {
     console.error('Error fetching customer:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to fetch customer information', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }

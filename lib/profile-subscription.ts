@@ -266,13 +266,35 @@ export class ProfileSubscriptionService {
   ) {
     try {
       const now = new Date()
-      const endDate = new Date()
+      let startDate = now
+      let endDate = new Date()
 
-      // Set end date based on interval
-      if (interval === 'year') {
-        endDate.setFullYear(endDate.getFullYear() + 1)
+      // If we have a Stripe subscription, get the actual dates from Stripe
+      if (stripeSubscriptionId) {
+        try {
+          const stripeSubscription = await stripe.subscriptions.retrieve(stripeSubscriptionId)
+          startDate = new Date(stripeSubscription.current_period_start * 1000)
+          endDate = new Date(stripeSubscription.current_period_end * 1000)
+          console.log('Using Stripe subscription dates:', {
+            start: startDate.toISOString(),
+            end: endDate.toISOString()
+          })
+        } catch (stripeError) {
+          console.warn('Could not retrieve Stripe subscription dates, using calculated dates:', stripeError)
+          // Fall back to calculated dates
+          if (interval === 'year') {
+            endDate.setFullYear(endDate.getFullYear() + 1)
+          } else {
+            endDate.setMonth(endDate.getMonth() + 1)
+          }
+        }
       } else {
-        endDate.setMonth(endDate.getMonth() + 1)
+        // Set end date based on interval for manual subscriptions
+        if (interval === 'year') {
+          endDate.setFullYear(endDate.getFullYear() + 1)
+        } else {
+          endDate.setMonth(endDate.getMonth() + 1)
+        }
       }
 
       // Update profile to indicate they want premium
@@ -285,33 +307,53 @@ export class ProfileSubscriptionService {
         .eq('user_id', clerkId)
 
       if (profileError) {
+        console.error('Error updating profile for subscription:', profileError)
         throw profileError
       }
 
-      // Create subscription record
+      // Cancel any existing active subscriptions first to prevent duplicates
+      const { error: cancelError } = await supabaseAdmin
+        .from('subscriptions')
+        .update({
+          status: 'canceled',
+          updated_at: now.toISOString()
+        })
+        .eq('user_id', clerkId)
+        .eq('status', 'active')
+
+      if (cancelError) {
+        console.warn('Error cancelling existing subscriptions:', cancelError)
+      }
+
+      // Create new subscription record
       const { data, error } = await supabaseAdmin
         .from('subscriptions')
-        .upsert({
+        .insert({
           user_id: clerkId,
           subscription_type: tier,
           status: 'active',
           is_premium: tier === 'premium' || tier === 'unlimited',
           is_unlimited: tier === 'unlimited',
           billing_cycle: interval === 'year' ? 'yearly' : 'monthly',
-          starts_at: now.toISOString(),
+          starts_at: startDate.toISOString(),
           ends_at: endDate.toISOString(),
           stripe_subscription_id: stripeSubscriptionId,
           stripe_customer_id: stripeCustomerId,
+          created_at: now.toISOString(),
           updated_at: now.toISOString()
         })
         .select()
         .single()
 
       if (error) {
+        console.error('Error creating subscription record:', error)
         throw error
       }
 
-      console.log(`Created ${tier} subscription for user ${clerkId}, expires: ${endDate.toISOString()}`)
+      console.log(`✅ Created ${tier} subscription for user ${clerkId}`)
+      console.log(`   Starts: ${startDate.toISOString()}`)
+      console.log(`   Ends: ${endDate.toISOString()}`)
+      console.log(`   Stripe Sub ID: ${stripeSubscriptionId || 'N/A'}`)
       return data
     } catch (error) {
       console.error('Error creating subscription:', error)
@@ -403,8 +445,16 @@ export class ProfileSubscriptionService {
     try {
       const clerkId = subscription.metadata?.clerk_id
       if (!clerkId) {
+        console.error('No clerk_id in subscription metadata:', subscription.id)
         throw new Error('No clerk_id in subscription metadata')
       }
+
+      console.log(`Processing Stripe subscription ${subscription.id} for user ${clerkId}`)
+      console.log('Subscription status:', subscription.status)
+      console.log('Subscription current period:', {
+        start: new Date(subscription.current_period_start * 1000).toISOString(),
+        end: new Date(subscription.current_period_end * 1000).toISOString()
+      })
 
       // Determine tier from price ID
       const priceId = subscription.items.data[0]?.price.id
@@ -428,22 +478,26 @@ export class ProfileSubscriptionService {
         PRICE_ID_MAP[process.env.STRIPE_UNLIMITED_YEARLY_PRICE_ID] = 'unlimited'
       }
 
-      // Handle test mode price IDs
+      // Handle test mode price IDs with better pattern matching
       if (priceId?.startsWith('price_test_')) {
         if (priceId.includes('premium')) {
           tier = 'premium'
         } else if (priceId.includes('unlimited')) {
           tier = 'unlimited'
         }
+        console.log('Test mode price ID detected')
       } else {
         tier = PRICE_ID_MAP[priceId] || 'free'
       }
 
       console.log('Mapped price ID to tier:', { priceId, tier })
 
-      if (subscription.status === 'active' && tier !== 'free') {
+      // Handle different subscription statuses
+      if (['active', 'trialing'].includes(subscription.status) && tier !== 'free') {
         // Determine interval
         const interval = subscription.items.data[0]?.price.recurring?.interval === 'year' ? 'year' : 'month'
+
+        console.log(`Creating/updating ${tier} ${interval} subscription`)
 
         await this.createSubscription(
           clerkId,
@@ -452,13 +506,20 @@ export class ProfileSubscriptionService {
           subscription.id,
           subscription.customer as string
         )
-      } else {
-        // Cancel subscription
+
+        console.log(`✅ Successfully activated ${tier} subscription for user ${clerkId}`)
+      } else if (['canceled', 'incomplete_expired', 'past_due'].includes(subscription.status)) {
+        console.log(`Subscription ${subscription.status}, cancelling user subscription`)
         await this.cancelSubscription(clerkId)
+        console.log(`✅ Successfully cancelled subscription for user ${clerkId}`)
+      } else {
+        console.log(`Subscription status ${subscription.status} not handled, keeping current state`)
       }
 
     } catch (error) {
       console.error('Error updating subscription from Stripe:', error)
+      console.error('Subscription ID:', subscription.id)
+      console.error('User ID:', subscription.metadata?.clerk_id)
       throw error
     }
   }
