@@ -191,10 +191,8 @@ export function SubscriptionManagement() {
       // Check if user has a real Stripe customer ID
       if (!customer.id || customer.id.startsWith('mock_') || customer.id.startsWith('fallback_')) {
         // User doesn't have an active paid subscription, redirect to pricing
-        const shouldRedirect = confirm('You need an active subscription to access the billing portal. Would you like to view our pricing plans?')
-        if (shouldRedirect) {
-          window.location.href = '/pricing'
-        }
+        alert('Billing portal is only available for active paid subscriptions. Please upgrade to access billing management.')
+        window.location.href = '/pricing'
         return
       }
 
@@ -212,12 +210,14 @@ export function SubscriptionManagement() {
       if (!response.ok) {
         const errorData = await response.json()
 
-        // If no active subscription, redirect to pricing
-        if (errorData.error && errorData.error.includes('No active subscription')) {
-          const shouldRedirect = confirm('You need an active subscription to access the billing portal. Would you like to view our pricing plans?')
-          if (shouldRedirect) {
-            window.location.href = '/pricing'
-          }
+        // If no active subscription or billing portal not configured, redirect to pricing
+        if (errorData.error && (
+          errorData.error.includes('No active subscription') ||
+          errorData.error.includes('configuration') ||
+          errorData.error.includes('not been created')
+        )) {
+          alert('Billing portal is temporarily unavailable. Please use the pricing page to manage your subscription.')
+          window.location.href = '/pricing'
           return
         }
 
@@ -303,17 +303,9 @@ export function SubscriptionManagement() {
     })
   }
 
+  // Removed downgrade options - users should not downgrade from their current plan
   const getDowngradeOptions = () => {
-    const currentTier = managementData.currentTier
-
-    if (currentTier === 'free') return []
-
-    return priceOptions.filter(option => {
-      if (currentTier === 'unlimited') {
-        return option.tier === 'premium'
-      }
-      return false
-    })
+    return [] // Always return empty array - no downgrades allowed
   }
 
   const getCurrentPlanOptions = () => {
@@ -427,8 +419,10 @@ export function SubscriptionManagement() {
                   {getUpgradeOptions().map((option) => (
                     <Button
                       key={option.priceId}
-                      onClick={() => handleSubscriptionAction('upgrade', option.priceId)}
-                      disabled={actionLoading === 'upgrade'}
+                      onClick={() => {
+                        // Redirect to pricing page for upgrades
+                        window.location.href = '/pricing'
+                      }}
                       variant="outline"
                       className="justify-between text-green-600 border-green-200 hover:bg-green-50"
                     >

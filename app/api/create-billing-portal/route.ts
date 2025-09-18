@@ -36,19 +36,33 @@ export async function POST(request: NextRequest) {
       : `${request.headers.get('origin')}/dashboard`
 
     // Create Stripe billing portal session
-    const session = await stripe.billingPortal.sessions.create({
-      customer: customerId,
-      return_url: returnUrl,
-    })
+    try {
+      const session = await stripe.billingPortal.sessions.create({
+        customer: customerId,
+        return_url: returnUrl,
+      })
 
-    if (!session.url) {
-      return NextResponse.json(
-        { error: 'Failed to create billing portal session. Please try again.' },
-        { status: 500 }
-      )
+      if (!session.url) {
+        return NextResponse.json(
+          { error: 'Failed to create billing portal session. Please try again.' },
+          { status: 500 }
+        )
+      }
+
+      return NextResponse.json({ url: session.url })
+    } catch (billingError) {
+      console.error('Billing portal creation failed:', billingError)
+
+      // If billing portal is not configured in test mode, provide helpful error
+      if (billingError instanceof Error && billingError.message.includes('configuration')) {
+        return NextResponse.json(
+          { error: 'Billing portal is not configured in test mode. Please use the pricing page to manage your subscription.' },
+          { status: 400 }
+        )
+      }
+
+      throw billingError
     }
-
-    return NextResponse.json({ url: session.url })
   } catch (error) {
     console.error('Error creating billing portal session:', error)
 

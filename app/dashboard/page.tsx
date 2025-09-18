@@ -45,10 +45,8 @@ export default function DashboardPage() {
       // Check if user has a real Stripe customer ID
       if (!customer.id || customer.id.startsWith('mock_') || customer.id.startsWith('fallback_')) {
         // User doesn't have an active paid subscription, redirect to pricing
-        const shouldRedirect = confirm('You need an active subscription to access the billing portal. Would you like to view our pricing plans?');
-        if (shouldRedirect) {
-          router.push('/pricing');
-        }
+        alert('Billing portal is only available for active paid subscriptions. Please upgrade to access billing management.');
+        router.push('/pricing');
         return;
       }
 
@@ -66,12 +64,14 @@ export default function DashboardPage() {
       if (!response.ok) {
         const errorData = await response.json();
 
-        // If no active subscription, redirect to pricing
-        if (errorData.error && errorData.error.includes('No active subscription')) {
-          const shouldRedirect = confirm('You need an active subscription to access the billing portal. Would you like to view our pricing plans?');
-          if (shouldRedirect) {
-            router.push('/pricing');
-          }
+        // If no active subscription or billing portal not configured, redirect to pricing
+        if (errorData.error && (
+          errorData.error.includes('No active subscription') ||
+          errorData.error.includes('configuration') ||
+          errorData.error.includes('not been created')
+        )) {
+          alert('Billing portal is temporarily unavailable. Please use the pricing page to manage your subscription.');
+          router.push('/pricing');
           return;
         }
 
