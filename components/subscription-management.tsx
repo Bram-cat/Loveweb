@@ -303,10 +303,7 @@ export function SubscriptionManagement() {
     })
   }
 
-  // Removed downgrade options - users should not downgrade from their current plan
-  const getDowngradeOptions = () => {
-    return [] // Always return empty array - no downgrades allowed
-  }
+  // Downgrade functionality completely removed as per requirements
 
   const getCurrentPlanOptions = () => {
     const currentTier = managementData.currentTier
@@ -437,29 +434,7 @@ export function SubscriptionManagement() {
               </div>
             )}
 
-            {/* Downgrade Options */}
-            {getDowngradeOptions().length > 0 && (
-              <div>
-                <h4 className="font-medium mb-2">Downgrade Plan</h4>
-                <div className="grid gap-2">
-                  {getDowngradeOptions().map((option) => (
-                    <Button
-                      key={option.priceId}
-                      onClick={() => handleSubscriptionAction('change_plan', option.priceId)}
-                      disabled={actionLoading === 'change_plan'}
-                      variant="outline"
-                      className="justify-between text-blue-600 border-blue-200 hover:bg-blue-50"
-                    >
-                      <span className="flex items-center gap-2">
-                        <ArrowDownCircle className="h-4 w-4" />
-                        Downgrade to {option.name}
-                      </span>
-                      <span>{formatPrice(option.price)}/{option.interval}</span>
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Downgrade Options - Removed as per requirements */}
 
             {/* Cancellation/Reactivation */}
             <div className="border-t pt-4">
