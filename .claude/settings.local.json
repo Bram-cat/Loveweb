@@ -17,7 +17,8 @@
       "Bash(netstat:*)",
       "Bash(findstr:*)",
       "Bash(npx tsc:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Read(//c/Users/**)"
     ],
     "deny": [],
     "ask": []
