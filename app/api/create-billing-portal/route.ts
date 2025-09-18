@@ -35,6 +35,10 @@ export async function POST(request: NextRequest) {
       ? `${process.env.NEXT_PUBLIC_DOMAIN}/dashboard`
       : `${request.headers.get('origin')}/dashboard`
 
+    // Check if we're in test mode
+    const isTestMode = process.env.STRIPE_SECRET_KEY?.startsWith('sk_test_')
+    console.log('Stripe mode:', isTestMode ? 'TEST' : 'LIVE')
+
     // Create Stripe billing portal session
     try {
       const session = await stripe.billingPortal.sessions.create({
@@ -52,13 +56,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ url: session.url })
     } catch (billingError) {
       console.error('Billing portal creation failed:', billingError)
+      console.error('Full error details:', billingError)
 
-      // If billing portal is not configured in test mode, provide helpful error
-      if (billingError instanceof Error && billingError.message.includes('configuration')) {
-        return NextResponse.json(
-          { error: 'Billing portal is not configured in test mode. Please use the pricing page to manage your subscription.' },
-          { status: 400 }
-        )
+      // Handle billing portal configuration errors
+      if (billingError instanceof Error) {
+        if (billingError.message.includes('billing_portal_configuration')) {
+          const modeMessage = isTestMode
+            ? 'Billing portal is not configured for test mode. Please configure test mode billing portal in your Stripe dashboard.'
+            : 'Billing portal is not configured. Please configure billing portal in your Stripe dashboard.'
+
+          return NextResponse.json(
+            { error: modeMessage },
+            { status: 400 }
+          )
+        }
+
+        if (billingError.message.includes('configuration')) {
+          return NextResponse.json(
+            { error: `Billing portal configuration error in ${isTestMode ? 'test' : 'live'} mode. Please check your Stripe dashboard.` },
+            { status: 400 }
+          )
+        }
       }
 
       throw billingError
