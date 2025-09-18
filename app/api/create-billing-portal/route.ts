@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
     const { customerId } = await request.json()
 
-    if (!customerId || customerId.startsWith('mock_')) {
+    if (!customerId || customerId.startsWith('mock_') || customerId.startsWith('fallback_')) {
       return NextResponse.json(
         { error: 'No active subscription found. Please upgrade to a paid plan to access billing portal.' },
         { status: 400 }

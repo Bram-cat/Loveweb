@@ -188,6 +188,16 @@ export function SubscriptionManagement() {
 
       const customer = await customerResponse.json()
 
+      // Check if user has a real Stripe customer ID
+      if (!customer.id || customer.id.startsWith('mock_') || customer.id.startsWith('fallback_')) {
+        // User doesn't have an active paid subscription, redirect to pricing
+        const shouldRedirect = confirm('You need an active subscription to access the billing portal. Would you like to view our pricing plans?')
+        if (shouldRedirect) {
+          window.location.href = '/pricing'
+        }
+        return
+      }
+
       // Create billing portal session
       const response = await fetch('/api/create-billing-portal', {
         method: 'POST',
@@ -201,6 +211,16 @@ export function SubscriptionManagement() {
 
       if (!response.ok) {
         const errorData = await response.json()
+
+        // If no active subscription, redirect to pricing
+        if (errorData.error && errorData.error.includes('No active subscription')) {
+          const shouldRedirect = confirm('You need an active subscription to access the billing portal. Would you like to view our pricing plans?')
+          if (shouldRedirect) {
+            window.location.href = '/pricing'
+          }
+          return
+        }
+
         throw new Error(errorData.error || 'Failed to create billing portal session')
       }
 
@@ -296,6 +316,22 @@ export function SubscriptionManagement() {
     })
   }
 
+  const getCurrentPlanOptions = () => {
+    const currentTier = managementData.currentTier
+    const currentCycle = getCurrentBillingCycle()
+
+    if (currentTier === 'free') return []
+
+    // Get the current plan option to compare and exclude it
+    return priceOptions.filter(option => {
+      // Same tier, same billing cycle = current plan (exclude)
+      if (option.tier === currentTier && option.interval === (currentCycle === 'monthly' ? 'month' : 'year')) {
+        return false
+      }
+      return option.tier === currentTier
+    })
+  }
+
   return (
     <div className="space-y-6">
       {/* Current Subscription Status */}
@@ -363,11 +399,11 @@ export function SubscriptionManagement() {
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Billing Cycle Toggle */}
-            {getAlternateBillingOptions().length > 0 && (
+            {getCurrentPlanOptions().length > 0 && (
               <div>
                 <h4 className="font-medium mb-2">Switch Billing Cycle</h4>
                 <div className="grid gap-2">
-                  {getAlternateBillingOptions().map((option) => (
+                  {getCurrentPlanOptions().map((option) => (
                     <Button
                       key={option.priceId}
                       onClick={() => handleSubscriptionAction('change_billing_cycle', option.priceId)}

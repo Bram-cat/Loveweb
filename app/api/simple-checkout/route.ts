@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
+import { supabaseAdmin } from '@/lib/supabase'
 
 // Simplified checkout session creation without complex subscription service dependencies
 export async function POST(request: NextRequest) {
@@ -9,6 +10,67 @@ export async function POST(request: NextRequest) {
     const { priceId, userEmail, userId } = await request.json()
 
     console.log('Simple checkout request:', { priceId, userEmail, userId })
+
+    // Check if user already has an active subscription
+    try {
+      const { data: existingSubscription, error: checkError } = await supabaseAdmin
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('status', 'active')
+        .single()
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Error checking existing subscription:', checkError)
+      }
+
+      if (existingSubscription) {
+        console.log(`User ${userId} already has an active ${existingSubscription.subscription_type} subscription`)
+
+        // Determine what action to suggest based on the current and requested tier
+        const currentTier = existingSubscription.subscription_type
+
+        // Extract tier from priceId to determine what they're trying to subscribe to
+        let requestedTier = 'free'
+        if (priceId?.includes('premium') || process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID === priceId || process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID === priceId) {
+          requestedTier = 'premium'
+        } else if (priceId?.includes('unlimited') || process.env.STRIPE_UNLIMITED_MONTHLY_PRICE_ID === priceId || process.env.STRIPE_UNLIMITED_YEARLY_PRICE_ID === priceId) {
+          requestedTier = 'unlimited'
+        }
+
+        let message = 'You already have an active subscription.'
+        let actionSuggestion = 'manage'
+
+        if (currentTier === 'premium' && requestedTier === 'unlimited') {
+          message = 'You can upgrade from Premium to Unlimited through your billing portal.'
+          actionSuggestion = 'upgrade'
+        } else if (currentTier === 'unlimited' && requestedTier === 'premium') {
+          message = 'You already have Unlimited access which includes all Premium features.'
+          actionSuggestion = 'downgrade'
+        } else if (currentTier === requestedTier) {
+          message = `You already have an active ${currentTier} subscription.`
+          actionSuggestion = 'manage'
+        } else {
+          message = 'You already have an active subscription. Use your billing portal to manage or change your plan.'
+          actionSuggestion = 'manage'
+        }
+
+        return NextResponse.json(
+          {
+            error: message,
+            hasActiveSubscription: true,
+            currentTier,
+            requestedTier,
+            actionSuggestion,
+            billingPortalAvailable: true
+          },
+          { status: 400 }
+        )
+      }
+    } catch (dbError) {
+      console.warn('Database check failed, proceeding with checkout:', dbError)
+      // Continue with checkout if database check fails
+    }
 
     // Basic validation
     if (!priceId || priceId === 'null' || priceId === null) {

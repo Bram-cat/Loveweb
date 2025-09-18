@@ -42,6 +42,16 @@ export default function DashboardPage() {
 
       const customer = await customerResponse.json();
 
+      // Check if user has a real Stripe customer ID
+      if (!customer.id || customer.id.startsWith('mock_') || customer.id.startsWith('fallback_')) {
+        // User doesn't have an active paid subscription, redirect to pricing
+        const shouldRedirect = confirm('You need an active subscription to access the billing portal. Would you like to view our pricing plans?');
+        if (shouldRedirect) {
+          router.push('/pricing');
+        }
+        return;
+      }
+
       // Create billing portal session
       const response = await fetch('/api/create-billing-portal', {
         method: 'POST',
@@ -55,6 +65,16 @@ export default function DashboardPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
+
+        // If no active subscription, redirect to pricing
+        if (errorData.error && errorData.error.includes('No active subscription')) {
+          const shouldRedirect = confirm('You need an active subscription to access the billing portal. Would you like to view our pricing plans?');
+          if (shouldRedirect) {
+            router.push('/pricing');
+          }
+          return;
+        }
+
         throw new Error(errorData.error || 'Failed to create billing portal session');
       }
 

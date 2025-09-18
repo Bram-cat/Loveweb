@@ -37,6 +37,7 @@ export default function PricingPage() {
   const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlans | null>(null)
   const [plansLoading, setPlansLoading] = useState(true)
   const [plansError, setPlansError] = useState<string | null>(null)
+  const [userSubscription, setUserSubscription] = useState<any>(null)
 
   // Fetch subscription plans from API
   useEffect(() => {
@@ -72,6 +73,29 @@ export default function PricingPage() {
 
     fetchPlans()
   }, [])
+
+  // Fetch user subscription status
+  useEffect(() => {
+    async function fetchUserSubscription() {
+      if (!user) return
+
+      try {
+        const response = await fetch('/api/subscription/simple-status')
+        if (response.ok) {
+          const data = await response.json()
+          setUserSubscription(data.subscription)
+          console.log('User subscription data:', data.subscription)
+        }
+      } catch (error) {
+        console.error('Error fetching user subscription:', error)
+        // Don't set error state, just continue without subscription data
+      }
+    }
+
+    if (isLoaded && user) {
+      fetchUserSubscription()
+    }
+  }, [isLoaded, user])
 
   const handleSubscribe = async (priceId: string, planName: string) => {
     if (!user) {
@@ -220,6 +244,47 @@ export default function PricingPage() {
     )
   }
 
+  // Helper function to determine if this is the user's current plan
+  const isCurrentPlan = (tier: string, interval: string | null) => {
+    if (!userSubscription) return false
+
+    const currentTier = userSubscription.tier
+    const currentInterval = userSubscription.billing_cycle === 'yearly' ? 'year' : 'month'
+
+    return currentTier === tier && (interval === null || currentInterval === interval)
+  }
+
+  // Helper function to get the CTA text based on user's subscription
+  const getPlanCTA = (tier: string, interval: string | null) => {
+    if (!userSubscription) {
+      return tier === 'free' ? 'Get Started Free' : tier === 'premium' ? 'Start Premium' : 'Go Unlimited'
+    }
+
+    const currentTier = userSubscription.tier
+
+    if (isCurrentPlan(tier, interval)) {
+      return 'Current Plan'
+    }
+
+    if (tier === 'free') {
+      return 'Downgrade'
+    }
+
+    if (currentTier === 'free') {
+      return tier === 'premium' ? 'Upgrade to Premium' : 'Upgrade to Unlimited'
+    }
+
+    if (currentTier === 'premium' && tier === 'unlimited') {
+      return 'Upgrade to Unlimited'
+    }
+
+    if (currentTier === 'unlimited' && tier === 'premium') {
+      return 'Downgrade to Premium'
+    }
+
+    return tier === 'premium' ? 'Start Premium' : 'Go Unlimited'
+  }
+
   const plans = [
     {
       tier: 'free',
@@ -236,10 +301,11 @@ export default function PricingPage() {
         'Basic insights',
         'Community support'
       ],
-      cta: 'Current Plan',
+      cta: getPlanCTA('free', null),
       highlight: false,
       icon: Heart,
-      gradient: 'from-gray-400 to-gray-600'
+      gradient: 'from-gray-400 to-gray-600',
+      isCurrent: isCurrentPlan('free', null)
     },
     {
       tier: 'premium',
@@ -250,10 +316,11 @@ export default function PricingPage() {
       priceId: isYearly ? subscriptionPlans.premium.yearly.priceId : subscriptionPlans.premium.monthly.priceId,
       description: 'Perfect for regular users',
       features: isYearly ? subscriptionPlans.premium.yearly.features : subscriptionPlans.premium.monthly.features,
-      cta: 'Start Premium',
-      highlight: true,
+      cta: getPlanCTA('premium', isYearly ? 'year' : 'month'),
+      highlight: !userSubscription || userSubscription.tier === 'free', // Highlight for new users or free users
       icon: Sparkles,
-      gradient: 'from-pink-500 to-purple-600'
+      gradient: 'from-pink-500 to-purple-600',
+      isCurrent: isCurrentPlan('premium', isYearly ? 'year' : 'month')
     },
     {
       tier: 'unlimited',
@@ -264,10 +331,11 @@ export default function PricingPage() {
       priceId: isYearly ? subscriptionPlans.unlimited.yearly.priceId : subscriptionPlans.unlimited.monthly.priceId,
       description: 'For power users who want everything',
       features: isYearly ? subscriptionPlans.unlimited.yearly.features : subscriptionPlans.unlimited.monthly.features,
-      cta: 'Go Unlimited',
-      highlight: false,
+      cta: getPlanCTA('unlimited', isYearly ? 'year' : 'month'),
+      highlight: userSubscription && userSubscription.tier === 'premium', // Highlight for premium users (upgrade option)
       icon: Crown,
-      gradient: 'from-yellow-500 to-orange-600'
+      gradient: 'from-yellow-500 to-orange-600',
+      isCurrent: isCurrentPlan('unlimited', isYearly ? 'year' : 'month')
     }
   ]
 
@@ -472,10 +540,22 @@ export default function PricingPage() {
                 </ul>
 
                 <div className="text-center">
-                  {plan.tier === 'free' ? (
-                    <div className="w-full py-4 px-6 rounded-xl bg-gray-700 text-gray-300 font-semibold">
-                      Current Plan
+                  {plan.isCurrent ? (
+                    <div className="w-full py-4 px-6 rounded-xl bg-green-600 text-white font-semibold">
+                      ✓ Current Plan
                     </div>
+                  ) : plan.tier === 'free' && userSubscription && userSubscription.tier !== 'free' ? (
+                    <button
+                      onClick={() => {
+                        const shouldRedirect = confirm('To downgrade to the free plan, please use your billing portal to cancel your subscription. Would you like to go there now?')
+                        if (shouldRedirect) {
+                          router.push('/dashboard')
+                        }
+                      }}
+                      className="w-full py-4 px-6 rounded-xl bg-gray-700 text-gray-300 font-semibold hover:bg-gray-600 transition-all"
+                    >
+                      {plan.cta}
+                    </button>
                   ) : !user ? (
                     <SignUpButton mode="modal">
                       <button className={`w-full py-4 px-6 rounded-xl font-semibold transition-all transform hover:scale-105 ${
@@ -488,8 +568,17 @@ export default function PricingPage() {
                     </SignUpButton>
                   ) : (
                     <button
-                      onClick={() => plan.priceId && handleSubscribe(plan.priceId, plan.name)}
-                      disabled={loading === plan.priceId || !plan.priceId}
+                      onClick={() => {
+                        if (plan.priceId) {
+                          handleSubscribe(plan.priceId, plan.name)
+                        } else if (plan.tier === 'free') {
+                          const shouldRedirect = confirm('To switch to the free plan, please use your billing portal to cancel your subscription. Would you like to go there now?')
+                          if (shouldRedirect) {
+                            router.push('/dashboard')
+                          }
+                        }
+                      }}
+                      disabled={loading === plan.priceId || (plan.tier !== 'free' && !plan.priceId)}
                       className={`w-full py-4 px-6 rounded-xl font-semibold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
                         plan.highlight
                           ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white btn-cosmic shadow-lg'
