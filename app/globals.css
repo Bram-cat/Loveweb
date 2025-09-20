@@ -224,85 +224,112 @@
 /* Clerk UserProfile Custom Styles */
 .clerk-profile-container {
   /* Override Clerk's default styles for better cosmic theme integration */
+  width: 100% !important;
+  max-width: none !important;
 }
 
 .clerk-profile-container .cl-rootBox {
   background: transparent !important;
+  box-shadow: none !important;
+  width: 100% !important;
 }
 
 .clerk-profile-container .cl-card {
-  background: rgba(255, 255, 255, 0.05) !important;
-  backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 1rem !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  width: 100% !important;
 }
 
 .clerk-profile-container .cl-headerTitle {
   color: #ffffff !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
 }
 
 .clerk-profile-container .cl-headerSubtitle {
   color: #d1d5db !important;
+  font-size: 0.95rem !important;
 }
 
 .clerk-profile-container .cl-formButtonPrimary {
   background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
   border: none !important;
-  border-radius: 0.5rem !important;
+  border-radius: 0.75rem !important;
   transition: all 0.3s ease !important;
+  font-weight: 600 !important;
+  padding: 0.75rem 1.5rem !important;
 }
 
 .clerk-profile-container .cl-formButtonPrimary:hover {
   background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 15px 30px rgba(139, 92, 246, 0.4) !important;
 }
 
 .clerk-profile-container .cl-formFieldInput {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
   color: #ffffff !important;
-  border-radius: 0.5rem !important;
+  border-radius: 0.75rem !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 0.95rem !important;
 }
 
 .clerk-profile-container .cl-formFieldInput:focus {
   border-color: #8b5cf6 !important;
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25) !important;
+  background: rgba(255, 255, 255, 0.15) !important;
 }
 
 .clerk-profile-container .cl-formFieldLabel {
   color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 0.5rem !important;
 }
 
 .clerk-profile-container .cl-dividerLine {
-  background: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  height: 1px !important;
 }
 
 .clerk-profile-container .cl-navbarButton {
   color: #d1d5db !important;
-  transition: color 0.3s ease !important;
+  transition: all 0.3s ease !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem 1rem !important;
+  margin: 0.25rem !important;
 }
 
 .clerk-profile-container .cl-navbarButton:hover {
   color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
 }
 
 .clerk-profile-container .cl-navbarButtonActive {
   color: #8b5cf6 !important;
+  background: rgba(139, 92, 246, 0.2) !important;
 }
 
 .clerk-profile-container .cl-menuButton {
   color: #d1d5db !important;
   transition: all 0.3s ease !important;
+  border-radius: 0.5rem !important;
+  padding: 0.5rem !important;
 }
 
 .clerk-profile-container .cl-menuButton:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.15) !important;
   color: #ffffff !important;
 }
 
 .clerk-profile-container .cl-profileSectionTitle {
   color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 1.1rem !important;
 }
 
 .clerk-profile-container .cl-profileSectionContent {
@@ -310,14 +337,79 @@
 }
 
 .clerk-profile-container .cl-badge {
-  background: rgba(139, 92, 246, 0.2) !important;
+  background: rgba(139, 92, 246, 0.25) !important;
   color: #8b5cf6 !important;
-  border-radius: 0.375rem !important;
+  border-radius: 0.5rem !important;
+  font-weight: 600 !important;
+  padding: 0.25rem 0.75rem !important;
 }
 
 .clerk-profile-container .cl-alert {
-  background: rgba(239, 68, 68, 0.1) !important;
+  background: rgba(239, 68, 68, 0.15) !important;
   color: #ef4444 !important;
-  border: 1px solid rgba(239, 68, 68, 0.2) !important;
-  border-radius: 0.5rem !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  border-radius: 0.75rem !important;
+  padding: 1rem !important;
+}
+
+.clerk-profile-container .cl-profileSection {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 1rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  margin: 1rem 0 !important;
+  padding: 1.5rem !important;
+}
+
+.clerk-profile-container .cl-profileSectionItem {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  padding: 1rem 0 !important;
+}
+
+.clerk-profile-container .cl-profileSectionItem:last-child {
+  border-bottom: none !important;
+}
+
+.clerk-profile-container .cl-formButtonSecondary {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 0.75rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.clerk-profile-container .cl-formButtonSecondary:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.clerk-profile-container .cl-accordionTriggerButton {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0.75rem !important;
+}
+
+.clerk-profile-container .cl-accordionTriggerButton:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.clerk-profile-container .cl-breadcrumbs {
+  color: #d1d5db !important;
+}
+
+.clerk-profile-container .cl-breadcrumbsItem {
+  color: #d1d5db !important;
+}
+
+.clerk-profile-container .cl-breadcrumbsItemDivider {
+  color: #9ca3af !important;
+}
+
+.clerk-profile-container .cl-userPreviewMainIdentifier {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.clerk-profile-container .cl-userPreviewSecondaryIdentifier {
+  color: #d1d5db !important;
 }
