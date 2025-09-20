@@ -220,3 +220,104 @@
 .flip-card-container {
   perspective: 1000px;
 }
+
+/* Clerk UserProfile Custom Styles */
+.clerk-profile-container {
+  /* Override Clerk's default styles for better cosmic theme integration */
+}
+
+.clerk-profile-container .cl-rootBox {
+  background: transparent !important;
+}
+
+.clerk-profile-container .cl-card {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 1rem !important;
+}
+
+.clerk-profile-container .cl-headerTitle {
+  color: #ffffff !important;
+}
+
+.clerk-profile-container .cl-headerSubtitle {
+  color: #d1d5db !important;
+}
+
+.clerk-profile-container .cl-formButtonPrimary {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+  border: none !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.clerk-profile-container .cl-formButtonPrimary:hover {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3) !important;
+}
+
+.clerk-profile-container .cl-formFieldInput {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  border-radius: 0.5rem !important;
+}
+
+.clerk-profile-container .cl-formFieldInput:focus {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
+}
+
+.clerk-profile-container .cl-formFieldLabel {
+  color: #ffffff !important;
+}
+
+.clerk-profile-container .cl-dividerLine {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.clerk-profile-container .cl-navbarButton {
+  color: #d1d5db !important;
+  transition: color 0.3s ease !important;
+}
+
+.clerk-profile-container .cl-navbarButton:hover {
+  color: #ffffff !important;
+}
+
+.clerk-profile-container .cl-navbarButtonActive {
+  color: #8b5cf6 !important;
+}
+
+.clerk-profile-container .cl-menuButton {
+  color: #d1d5db !important;
+  transition: all 0.3s ease !important;
+}
+
+.clerk-profile-container .cl-menuButton:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.clerk-profile-container .cl-profileSectionTitle {
+  color: #ffffff !important;
+}
+
+.clerk-profile-container .cl-profileSectionContent {
+  color: #d1d5db !important;
+}
+
+.clerk-profile-container .cl-badge {
+  background: rgba(139, 92, 246, 0.2) !important;
+  color: #8b5cf6 !important;
+  border-radius: 0.375rem !important;
+}
+
+.clerk-profile-container .cl-alert {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #ef4444 !important;
+  border: 1px solid rgba(239, 68, 68, 0.2) !important;
+  border-radius: 0.5rem !important;
+}
