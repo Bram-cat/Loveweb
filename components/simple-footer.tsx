@@ -1,6 +1,6 @@
 'use client'
 
-import { Heart, Mail, Github, Twitter, Instagram } from 'lucide-react'
+import { Heart, Mail, Github, Twitter, Instagram, Facebook, Linkedin, Youtube } from 'lucide-react'
 
 export function SimpleFooter() {
   return (
@@ -42,21 +42,76 @@ export function SimpleFooter() {
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Contact & Social */}
           <div className="md:col-span-1">
-            <h4 className="text-white font-semibold mb-4">Connect</h4>
-            <div className="flex space-x-3 mb-4">
-              <a href="#" className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors">
-                <Twitter className="w-4 h-4 text-gray-300" />
+            <h4 className="text-white font-semibold mb-4">Connect With Us</h4>
+            <div className="grid grid-cols-4 gap-2 mb-4">
+              <a
+                href="https://instagram.com/lovelock.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
+                aria-label="Follow us on Instagram"
+              >
+                <Instagram className="w-4 h-4 text-white" />
               </a>
-              <a href="#" className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors">
-                <Instagram className="w-4 h-4 text-gray-300" />
+              <a
+                href="https://facebook.com/lovelock.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
+                aria-label="Follow us on Facebook"
+              >
+                <Facebook className="w-4 h-4 text-white" />
               </a>
-              <a href="#" className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors">
-                <Mail className="w-4 h-4 text-gray-300" />
+              <a
+                href="https://twitter.com/lovelock_app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 bg-sky-500 hover:bg-sky-600 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
+                aria-label="Follow us on Twitter"
+              >
+                <Twitter className="w-4 h-4 text-white" />
+              </a>
+              <a
+                href="https://youtube.com/@lovelock"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 bg-red-600 hover:bg-red-700 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
+                aria-label="Subscribe to our YouTube channel"
+              >
+                <Youtube className="w-4 h-4 text-white" />
+              </a>
+              <a
+                href="https://linkedin.com/company/lovelock-app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 bg-blue-700 hover:bg-blue-800 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
+                aria-label="Connect with us on LinkedIn"
+              >
+                <Linkedin className="w-4 h-4 text-white" />
+              </a>
+              <a
+                href="https://github.com/lovelock-app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 bg-gray-800 hover:bg-gray-900 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
+                aria-label="View our code on GitHub"
+              >
+                <Github className="w-4 h-4 text-white" />
+              </a>
+              <a
+                href="mailto:support@lovelock.com"
+                className="w-8 h-8 bg-green-600 hover:bg-green-700 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
+                aria-label="Contact us via email"
+              >
+                <Mail className="w-4 h-4 text-white" />
               </a>
             </div>
-            <p className="text-gray-400 text-sm">support@lovelock.com</p>
+            <div className="space-y-2">
+              <p className="text-gray-400 text-sm">support@lovelock.com</p>
+              <p className="text-gray-400 text-xs">Follow us for cosmic insights & updates</p>
+            </div>
           </div>
         </div>
 
@@ -65,8 +120,15 @@ export function SimpleFooter() {
           <div className="text-gray-400 text-sm mb-4 md:mb-0">
             © 2024 Lovelock. All rights reserved.
           </div>
-          <div className="flex items-center space-x-4 text-sm text-gray-400">
-            <span>Made with ❤️ for cosmic souls</span>
+          <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6 text-sm text-gray-400">
+            <div className="flex items-center space-x-4">
+              <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
+              <a href="/terms" className="hover:text-white transition-colors">Terms</a>
+              <a href="mailto:support@lovelock.com" className="hover:text-white transition-colors">Support</a>
+            </div>
+            <span className="flex items-center">
+              Made with <Heart className="w-4 h-4 mx-1 text-pink-400" /> for cosmic souls
+            </span>
           </div>
         </div>
       </div>

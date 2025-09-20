@@ -101,7 +101,7 @@ export function FlipCardFeatures() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
-          className="relative h-64 cursor-pointer"
+          className="relative h-80 cursor-pointer"
           onClick={() => handleCardClick(feature.id)}
         >
           <div className="relative w-full h-full preserve-3d">
@@ -140,32 +140,38 @@ export function FlipCardFeatures() {
                   transition={{ duration: 0.6 }}
                   className="absolute inset-0 backface-hidden"
                 >
-                  <div className={`bg-gradient-to-br ${feature.color} rounded-3xl p-6 h-full flex flex-col justify-between text-white shadow-2xl`}>
-                    <div>
-                      <div className="flex items-center gap-3 mb-4">
-                        <feature.icon className="w-6 h-6" />
-                        <h3 className="text-lg font-semibold">{feature.title}</h3>
+                  <div className={`bg-gradient-to-br ${feature.color} rounded-3xl p-5 h-full flex flex-col text-white shadow-2xl overflow-hidden`}>
+                    <div className="flex-shrink-0">
+                      <div className="flex items-center gap-2 mb-3">
+                        <feature.icon className="w-5 h-5 flex-shrink-0" />
+                        <h3 className="text-base font-semibold truncate">{feature.title}</h3>
                       </div>
-                      <p className="text-sm opacity-90 mb-4 leading-relaxed">
-                        {feature.details}
-                      </p>
                     </div>
-                    <div>
-                      <h4 className="text-sm font-semibold mb-2 flex items-center gap-1">
-                        <Star className="w-3 h-3" />
-                        Key Features:
-                      </h4>
-                      <ul className="text-xs space-y-1">
-                        {feature.features.slice(0, 3).map((item, idx) => (
-                          <li key={idx} className="flex items-center gap-2">
-                            <div className="w-1 h-1 bg-white rounded-full opacity-60"></div>
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                      <div className="mt-3 text-xs opacity-75 flex items-center gap-1">
-                        <TrendingUp className="w-3 h-3" />
-                        Click to flip back
+
+                    <div className="flex-1 flex flex-col justify-between min-h-0">
+                      <div className="flex-1">
+                        <p className="text-xs opacity-90 mb-3 leading-relaxed line-clamp-4">
+                          {feature.details}
+                        </p>
+                      </div>
+
+                      <div className="flex-shrink-0">
+                        <h4 className="text-xs font-semibold mb-2 flex items-center gap-1">
+                          <Star className="w-3 h-3 flex-shrink-0" />
+                          Key Features:
+                        </h4>
+                        <ul className="text-xs space-y-1 mb-3">
+                          {feature.features.slice(0, 3).map((item, idx) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <div className="w-1 h-1 bg-white rounded-full opacity-60 mt-1.5 flex-shrink-0"></div>
+                              <span className="line-clamp-1">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="text-xs opacity-75 flex items-center gap-1">
+                          <TrendingUp className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">Click to flip back</span>
+                        </div>
                       </div>
                     </div>
                   </div>
