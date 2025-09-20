@@ -147,6 +147,8 @@ export default function AccountPage() {
             >
               <div className="clerk-profile-container">
                 <UserProfile
+                  path="/account"
+                  routing="path"
                   appearance={{
                     baseTheme: undefined,
                     variables: {
