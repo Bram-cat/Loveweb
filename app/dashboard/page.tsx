@@ -16,15 +16,13 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { useToast } from "@/components/ui/toast";
 import { SubscriptionStatus } from "@/components/subscription-status";
 import { SubscriptionManagement } from "@/components/subscription-management";
-import { QuickActions } from "@/components/quick-actions";
+import { FlipCardFeatures } from "@/components/flip-card-features";
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
-  const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const handleBillingPortal = async () => {
@@ -48,11 +46,7 @@ export default function DashboardPage() {
       // Check if user has a real Stripe customer ID
       if (!customer.id || customer.id.startsWith('mock_') || customer.id.startsWith('fallback_')) {
         // User doesn't have an active paid subscription, redirect to pricing
-        addToast({
-          title: "Billing Portal Unavailable",
-          description: 'Billing portal is only available for active paid subscriptions. Please upgrade to access billing management.',
-          variant: "warning"
-        });
+        alert('Billing portal is only available for active paid subscriptions. Please upgrade to access billing management.');
         router.push('/pricing');
         return;
       }
@@ -77,11 +71,7 @@ export default function DashboardPage() {
           errorData.error.includes('configuration') ||
           errorData.error.includes('not been created')
         )) {
-          addToast({
-            title: "Billing Portal Temporarily Unavailable",
-            description: 'Billing portal is temporarily unavailable. Please use the pricing page to manage your subscription.',
-            variant: "warning"
-          });
+          alert('Billing portal is temporarily unavailable. Please use the pricing page to manage your subscription.');
           router.push('/pricing');
           return;
         }
@@ -95,11 +85,7 @@ export default function DashboardPage() {
       window.location.href = data.url;
     } catch (error) {
       console.error('Error opening billing portal:', error);
-      addToast({
-        title: "Billing Portal Error",
-        description: error instanceof Error ? error.message : 'Failed to open billing portal. Please try again.',
-        variant: "destructive"
-      });
+      alert(`Error: ${error instanceof Error ? error.message : 'Failed to open billing portal. Please try again.'}`);
     } finally {
       setLoading(false);
     }
@@ -217,15 +203,6 @@ export default function DashboardPage() {
                 <SubscriptionManagement />
               </motion.div>
 
-              {/* Quick Actions */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <QuickActions />
-              </motion.div>
-
               {/* App Features */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -238,47 +215,7 @@ export default function DashboardPage() {
                     Available in the Lovelock App
                   </h3>
 
-                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {[
-                      {
-                        icon: Calculator,
-                        title: "Numerology Readings",
-                        description:
-                          "Deep insights from your birth date and name",
-                      },
-                      {
-                        icon: Heart,
-                        title: "Love Compatibility",
-                        description:
-                          "Discover relationship potential with anyone",
-                      },
-                      {
-                        icon: Shield,
-                        title: "Trust Assessment",
-                        description: "Evaluate character and trustworthiness",
-                      },
-                      {
-                        icon: Sparkles,
-                        title: "AI Insights",
-                        description: "Personalized analysis and predictions",
-                      },
-                    ].map((feature, index) => (
-                      <div
-                        key={index}
-                        className="glass p-6 rounded-2xl text-center"
-                      >
-                        <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-                          <feature.icon className="w-6 h-6 text-white" />
-                        </div>
-                        <h4 className="text-lg font-semibold text-white mb-2">
-                          {feature.title}
-                        </h4>
-                        <p className="text-gray-300 text-sm">
-                          {feature.description}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
+                  <FlipCardFeatures />
 
                   <div className="mt-8 flex gap-4 justify-center flex-wrap">
                     <button

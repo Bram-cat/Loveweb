@@ -207,3 +207,16 @@
     transform: translateX(0);
   }
 }
+
+/* 3D Flip Card Styles */
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.flip-card-container {
+  perspective: 1000px;
+}

@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
-import { useToast } from '@/components/ui/toast'
 
 interface SubscriptionData {
   subscription: {
@@ -31,7 +30,6 @@ interface SubscriptionData {
 
 export function SubscriptionStatus() {
   const { user, isLoaded } = useUser()
-  const { addToast } = useToast()
   const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
