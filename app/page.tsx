@@ -29,7 +29,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { SimpleFooter } from "@/components/simple-footer";
 
 export default function HomePage() {
   const { user, isLoaded } = useUser();
@@ -389,8 +388,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Simple Footer */}
-      <SimpleFooter />
     </div>
   );
 }

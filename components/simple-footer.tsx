@@ -4,8 +4,8 @@ import { Heart, Mail, Github, Twitter, Instagram, Facebook, Linkedin, Youtube } 
 
 export function SimpleFooter() {
   return (
-    <footer className="relative z-10 px-6 py-12 border-t border-white/10 bg-black/20 backdrop-blur-sm">
-      <div className="max-w-6xl mx-auto">
+    <footer className="relative z-10 px-6 py-12 border-t border-white/10 bg-black/30 backdrop-blur-md">
+      <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
           <div className="md:col-span-1">
@@ -24,10 +24,11 @@ export function SimpleFooter() {
           <div className="md:col-span-1">
             <h4 className="text-white font-semibold mb-4">Features</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Numerology Readings</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Love Compatibility</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Trust Assessment</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">AI Insights</a></li>
+              <li><a href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-sm">Numerology Readings</a></li>
+              <li><a href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-sm">Love Compatibility</a></li>
+              <li><a href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-sm">Trust Assessment</a></li>
+              <li><a href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-sm">AI Insights</a></li>
+              <li><a href="/pricing" className="text-gray-400 hover:text-white transition-colors text-sm">Pricing Plans</a></li>
             </ul>
           </div>
 
@@ -35,17 +36,18 @@ export function SimpleFooter() {
           <div className="md:col-span-1">
             <h4 className="text-white font-semibold mb-4">Support</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Help Center</a></li>
+              <li><a href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-sm">Help Center</a></li>
               <li><a href="/privacy" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a></li>
               <li><a href="/terms" className="text-gray-400 hover:text-white transition-colors text-sm">Terms of Service</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Contact Us</a></li>
+              <li><a href="mailto:support@lovelock.com" className="text-gray-400 hover:text-white transition-colors text-sm">Contact Us</a></li>
+              <li><a href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-sm">Account Settings</a></li>
             </ul>
           </div>
 
           {/* Contact & Social */}
           <div className="md:col-span-1">
             <h4 className="text-white font-semibold mb-4">Connect With Us</h4>
-            <div className="grid grid-cols-4 gap-2 mb-4">
+            <div className="grid grid-cols-3 gap-3 mb-4">
               <a
                 href="https://instagram.com/lovelock.app"
                 target="_blank"
@@ -83,6 +85,13 @@ export function SimpleFooter() {
                 <Youtube className="w-4 h-4 text-white" />
               </a>
               <a
+                href="mailto:support@lovelock.com"
+                className="w-8 h-8 bg-green-600 hover:bg-green-700 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
+                aria-label="Contact us via email"
+              >
+                <Mail className="w-4 h-4 text-white" />
+              </a>
+              <a
                 href="https://linkedin.com/company/lovelock-app"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -99,13 +108,6 @@ export function SimpleFooter() {
                 aria-label="View our code on GitHub"
               >
                 <Github className="w-4 h-4 text-white" />
-              </a>
-              <a
-                href="mailto:support@lovelock.com"
-                className="w-8 h-8 bg-green-600 hover:bg-green-700 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
-                aria-label="Contact us via email"
-              >
-                <Mail className="w-4 h-4 text-white" />
               </a>
             </div>
             <div className="space-y-2">

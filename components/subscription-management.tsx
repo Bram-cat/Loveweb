@@ -395,13 +395,17 @@ export function SubscriptionManagement() {
                   {getCurrentPlanOptions().map((option) => (
                     <Button
                       key={option.priceId}
-                      onClick={() => handleSubscriptionAction('change_billing_cycle', option.priceId)}
-                      disabled={actionLoading === 'change_billing_cycle'}
+                      onClick={handleBillingPortal}
+                      disabled={actionLoading === 'billing_portal'}
                       variant="outline"
                       className="justify-between"
                     >
-                      <span>Switch to {option.name}</span>
-                      <span>{formatPrice(option.price)}/{option.interval}</span>
+                      <span>
+                        {actionLoading === 'billing_portal' ? 'Loading...' : `Switch to ${option.name}`}
+                      </span>
+                      {actionLoading !== 'billing_portal' && (
+                        <span>{formatPrice(option.price)}/{option.interval}</span>
+                      )}
                     </Button>
                   ))}
                 </div>
@@ -416,18 +420,18 @@ export function SubscriptionManagement() {
                   {getUpgradeOptions().map((option) => (
                     <Button
                       key={option.priceId}
-                      onClick={() => {
-                        // Redirect to pricing page for upgrades
-                        window.location.href = '/pricing'
-                      }}
+                      onClick={handleBillingPortal}
+                      disabled={actionLoading === 'billing_portal'}
                       variant="outline"
                       className="justify-between text-green-600 border-green-200 hover:bg-green-50"
                     >
                       <span className="flex items-center gap-2">
                         <ArrowUpCircle className="h-4 w-4" />
-                        Upgrade to {option.name}
+                        {actionLoading === 'billing_portal' ? 'Loading...' : `Upgrade to ${option.name}`}
                       </span>
-                      <span>{formatPrice(option.price)}/{option.interval}</span>
+                      {actionLoading !== 'billing_portal' && (
+                        <span>{formatPrice(option.price)}/{option.interval}</span>
+                      )}
                     </Button>
                   ))}
                 </div>
