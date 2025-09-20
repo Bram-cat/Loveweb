@@ -1,4 +1,6 @@
-import * as React from "react"
+"use client"
+
+import React, { createContext, useContext, useState, useCallback, forwardRef } from "react"
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "./button"
@@ -39,7 +41,7 @@ const variantIconColors = {
   cosmic: "text-purple-500"
 }
 
-export const Toast = React.forwardRef<
+export const Toast = forwardRef<
   HTMLDivElement,
   ToastProps
 >(({ id, title, description, variant = "default", onClose, ...props }, ref) => {
@@ -86,10 +88,10 @@ export interface ToastContextType {
   removeToast: (id: string) => void
 }
 
-export const ToastContext = React.createContext<ToastContextType | undefined>(undefined)
+export const ToastContext = createContext<ToastContextType | undefined>(undefined)
 
 export function useToast() {
-  const context = React.useContext(ToastContext)
+  const context = useContext(ToastContext)
   if (!context) {
     throw new Error("useToast must be used within a ToastProvider")
   }
@@ -97,9 +99,13 @@ export function useToast() {
 }
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
-  const [toasts, setToasts] = React.useState<ToastProps[]>([])
+  const [toasts, setToasts] = useState<ToastProps[]>([])
 
-  const addToast = React.useCallback((toast: Omit<ToastProps, "id">) => {
+  const removeToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id))
+  }, [])
+
+  const addToast = useCallback((toast: Omit<ToastProps, "id">) => {
     const id = Math.random().toString(36).substr(2, 9)
     const newToast = { ...toast, id }
 
@@ -111,11 +117,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         removeToast(id)
       }, toast.duration || 5000)
     }
-  }, [])
-
-  const removeToast = React.useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id))
-  }, [])
+  }, [removeToast])
 
   return (
     <ToastContext.Provider value={{ toasts, addToast, removeToast }}>
