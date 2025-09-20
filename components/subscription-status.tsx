@@ -106,19 +106,11 @@ export function SubscriptionStatus() {
 
       if (response.ok) {
         console.log('Manual sync successful')
-        addToast({
-          title: "Sync Successful",
-          description: "Your subscription has been synced successfully",
-          variant: "success"
-        })
+        console.log('Sync Successful: Your subscription has been synced successfully')
         await fetchSubscriptionStatus()
       } else {
         console.error('Manual sync failed')
-        addToast({
-          title: "Sync Failed",
-          description: "Failed to sync subscription. Please try again.",
-          variant: "destructive"
-        })
+        console.error('Sync Failed: Failed to sync subscription. Please try again.')
       }
     } catch (error) {
       console.error('Error during manual sync:', error)
@@ -134,18 +126,10 @@ export function SubscriptionStatus() {
       const response = await fetch('/api/debug/user-subscription')
       const data = await response.json()
       console.log('User debug data:', data)
-      addToast({
-        title: "Debug Data Retrieved",
-        description: "Check the browser console for detailed debug information",
-        variant: "info"
-      })
+      console.log('Debug Data Retrieved: Check the browser console for detailed debug information')
     } catch (error) {
       console.error('Error during debug:', error)
-      addToast({
-        title: "Debug Failed",
-        description: "Failed to retrieve debug data. Check console for errors.",
-        variant: "destructive"
-      })
+      console.error('Debug Failed: Failed to retrieve debug data. Check console for errors.')
     }
   }
 
@@ -167,20 +151,12 @@ export function SubscriptionStatus() {
       if (response.ok) {
         const result = await response.json()
         console.log('Premium subscription created:', result)
-        addToast({
-          title: "Premium Created",
-          description: "Premium subscription has been created successfully",
-          variant: "success"
-        })
+        console.log('Premium Created: Premium subscription has been created successfully')
         await fetchSubscriptionStatus()
       } else {
         const error = await response.json()
         console.error('Failed to create premium subscription:', error)
-        addToast({
-          title: "Creation Failed",
-          description: "Failed to create premium subscription",
-          variant: "destructive"
-        })
+        console.error('Creation Failed: Failed to create premium subscription')
       }
     } catch (error) {
       console.error('Error creating premium subscription:', error)
@@ -208,28 +184,16 @@ export function SubscriptionStatus() {
       if (response.ok) {
         const result = await response.json()
         console.log('Subscription fixed:', result)
-        addToast({
-          title: "Subscription Fixed",
-          description: "Premium subscription activated successfully!",
-          variant: "success"
-        })
+        console.log('Subscription Fixed: Premium subscription activated successfully!')
         await fetchSubscriptionStatus()
       } else {
         const error = await response.json()
         console.error('Failed to fix subscription:', error)
-        addToast({
-          title: "Fix Failed",
-          description: `Failed to fix subscription: ${error.details || error.error}`,
-          variant: "destructive"
-        })
+        console.error(`Fix Failed: Failed to fix subscription: ${error.details || error.error}`)
       }
     } catch (error) {
       console.error('Error fixing subscription:', error)
-      addToast({
-        title: "Error",
-        description: "Error fixing subscription. Check console for details.",
-        variant: "destructive"
-      })
+      console.error('Error: Error fixing subscription. Check console for details.')
     } finally {
       setLoading(false)
     }
