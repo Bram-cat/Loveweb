@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
+import { useToast } from '@/components/ui/toast'
 
 interface SubscriptionData {
   subscription: {
@@ -30,6 +31,7 @@ interface SubscriptionData {
 
 export function SubscriptionStatus() {
   const { user, isLoaded } = useUser()
+  const { addToast } = useToast()
   const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -106,9 +108,19 @@ export function SubscriptionStatus() {
 
       if (response.ok) {
         console.log('Manual sync successful')
+        addToast({
+          title: "Sync Successful",
+          description: "Your subscription has been synced successfully",
+          variant: "success"
+        })
         await fetchSubscriptionStatus()
       } else {
         console.error('Manual sync failed')
+        addToast({
+          title: "Sync Failed",
+          description: "Failed to sync subscription. Please try again.",
+          variant: "destructive"
+        })
       }
     } catch (error) {
       console.error('Error during manual sync:', error)
@@ -124,9 +136,18 @@ export function SubscriptionStatus() {
       const response = await fetch('/api/debug/user-subscription')
       const data = await response.json()
       console.log('User debug data:', data)
-      alert('Check console for debug data')
+      addToast({
+        title: "Debug Data Retrieved",
+        description: "Check the browser console for detailed debug information",
+        variant: "info"
+      })
     } catch (error) {
       console.error('Error during debug:', error)
+      addToast({
+        title: "Debug Failed",
+        description: "Failed to retrieve debug data. Check console for errors.",
+        variant: "destructive"
+      })
     }
   }
 
@@ -148,10 +169,20 @@ export function SubscriptionStatus() {
       if (response.ok) {
         const result = await response.json()
         console.log('Premium subscription created:', result)
+        addToast({
+          title: "Premium Created",
+          description: "Premium subscription has been created successfully",
+          variant: "success"
+        })
         await fetchSubscriptionStatus()
       } else {
         const error = await response.json()
         console.error('Failed to create premium subscription:', error)
+        addToast({
+          title: "Creation Failed",
+          description: "Failed to create premium subscription",
+          variant: "destructive"
+        })
       }
     } catch (error) {
       console.error('Error creating premium subscription:', error)
@@ -179,16 +210,28 @@ export function SubscriptionStatus() {
       if (response.ok) {
         const result = await response.json()
         console.log('Subscription fixed:', result)
-        alert('Premium subscription activated successfully!')
+        addToast({
+          title: "Subscription Fixed",
+          description: "Premium subscription activated successfully!",
+          variant: "success"
+        })
         await fetchSubscriptionStatus()
       } else {
         const error = await response.json()
         console.error('Failed to fix subscription:', error)
-        alert(`Failed to fix subscription: ${error.details || error.error}`)
+        addToast({
+          title: "Fix Failed",
+          description: `Failed to fix subscription: ${error.details || error.error}`,
+          variant: "destructive"
+        })
       }
     } catch (error) {
       console.error('Error fixing subscription:', error)
-      alert('Error fixing subscription. Check console for details.')
+      addToast({
+        title: "Error",
+        description: "Error fixing subscription. Check console for details.",
+        variant: "destructive"
+      })
     } finally {
       setLoading(false)
     }

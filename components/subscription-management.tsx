@@ -5,6 +5,7 @@ import { useUser } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { useToast } from '@/components/ui/toast'
 import { Crown, Calendar, CreditCard, ArrowUpCircle, ArrowDownCircle, XCircle, RotateCcw } from 'lucide-react'
 
 interface SubscriptionManagementData {
@@ -31,6 +32,7 @@ interface PriceOption {
 
 export function SubscriptionManagement() {
   const { user, isLoaded } = useUser()
+  const { addToast } = useToast()
   const [managementData, setManagementData] = useState<SubscriptionManagementData | null>(null)
   const [priceOptions, setPriceOptions] = useState<PriceOption[]>([])
   const [loading, setLoading] = useState(true)
@@ -159,11 +161,19 @@ export function SubscriptionManagement() {
       await fetchManagementData()
 
       // Show success message
-      alert(result.message || 'Action completed successfully')
+      addToast({
+        title: "Success",
+        description: result.message || 'Action completed successfully',
+        variant: "success"
+      })
 
     } catch (err) {
       console.error('Subscription action error:', err)
-      alert(`Error: ${err instanceof Error ? err.message : 'Unknown error'}`)
+      addToast({
+        title: "Error",
+        description: err instanceof Error ? err.message : 'Unknown error',
+        variant: "destructive"
+      })
     } finally {
       setActionLoading(null)
     }
@@ -191,7 +201,11 @@ export function SubscriptionManagement() {
       // Check if user has a real Stripe customer ID
       if (!customer.id || customer.id.startsWith('mock_') || customer.id.startsWith('fallback_')) {
         // User doesn't have an active paid subscription, redirect to pricing
-        alert('Billing portal is only available for active paid subscriptions. Please upgrade to access billing management.')
+        addToast({
+          title: "Billing Portal Unavailable",
+          description: 'Billing portal is only available for active paid subscriptions. Please upgrade to access billing management.',
+          variant: "warning"
+        })
         window.location.href = '/pricing'
         return
       }
@@ -216,7 +230,11 @@ export function SubscriptionManagement() {
           errorData.error.includes('configuration') ||
           errorData.error.includes('not been created')
         )) {
-          alert('Billing portal is temporarily unavailable. Please use the pricing page to manage your subscription.')
+          addToast({
+            title: "Billing Portal Temporarily Unavailable",
+            description: 'Billing portal is temporarily unavailable. Please use the pricing page to manage your subscription.',
+            variant: "warning"
+          })
           window.location.href = '/pricing'
           return
         }
@@ -231,7 +249,11 @@ export function SubscriptionManagement() {
 
     } catch (err) {
       console.error('Error opening billing portal:', err)
-      alert(`Error: ${err instanceof Error ? err.message : 'Failed to open billing portal'}`)
+      addToast({
+        title: "Billing Portal Error",
+        description: err instanceof Error ? err.message : 'Failed to open billing portal',
+        variant: "destructive"
+      })
     } finally {
       setActionLoading(null)
     }

@@ -51,9 +51,9 @@ export const USAGE_LIMITS = {
     trustAssessment: 3
   },
   premium: {
-    numerology: 50,
-    loveMatch: 50,
-    trustAssessment: 50
+    numerology: 25,
+    loveMatch: 10,
+    trustAssessment: 15
   },
   unlimited: {
     numerology: -1, // Unlimited

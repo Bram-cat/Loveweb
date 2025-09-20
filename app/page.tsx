@@ -29,6 +29,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { EnhancedFooter } from "@/components/enhanced-footer";
 
 export default function HomePage() {
   const { user, isLoaded } = useUser();
@@ -388,28 +389,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative z-10 px-6 py-12 border-t border-white/10">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-2 mb-6 md:mb-0">
-              <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <Heart className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-white">Lovelock</span>
-            </div>
-
-            <div className="text-center md:text-right">
-              <p className="text-gray-400 mb-2">
-                © 2024 Lovelock. All rights reserved.
-              </p>
-              <p className="text-sm text-gray-500">
-                Unlock hidden secrets about yourself and others
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* Enhanced Footer */}
+      <EnhancedFooter />
     </div>
   );
 }

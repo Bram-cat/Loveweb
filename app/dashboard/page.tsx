@@ -16,12 +16,15 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useToast } from "@/components/ui/toast";
 import { SubscriptionStatus } from "@/components/subscription-status";
 import { SubscriptionManagement } from "@/components/subscription-management";
+import { QuickActions } from "@/components/quick-actions";
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
+  const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const handleBillingPortal = async () => {
@@ -45,7 +48,11 @@ export default function DashboardPage() {
       // Check if user has a real Stripe customer ID
       if (!customer.id || customer.id.startsWith('mock_') || customer.id.startsWith('fallback_')) {
         // User doesn't have an active paid subscription, redirect to pricing
-        alert('Billing portal is only available for active paid subscriptions. Please upgrade to access billing management.');
+        addToast({
+          title: "Billing Portal Unavailable",
+          description: 'Billing portal is only available for active paid subscriptions. Please upgrade to access billing management.',
+          variant: "warning"
+        });
         router.push('/pricing');
         return;
       }
@@ -70,7 +77,11 @@ export default function DashboardPage() {
           errorData.error.includes('configuration') ||
           errorData.error.includes('not been created')
         )) {
-          alert('Billing portal is temporarily unavailable. Please use the pricing page to manage your subscription.');
+          addToast({
+            title: "Billing Portal Temporarily Unavailable",
+            description: 'Billing portal is temporarily unavailable. Please use the pricing page to manage your subscription.',
+            variant: "warning"
+          });
           router.push('/pricing');
           return;
         }
@@ -84,7 +95,11 @@ export default function DashboardPage() {
       window.location.href = data.url;
     } catch (error) {
       console.error('Error opening billing portal:', error);
-      alert(`Error: ${error instanceof Error ? error.message : 'Failed to open billing portal. Please try again.'}`);
+      addToast({
+        title: "Billing Portal Error",
+        description: error instanceof Error ? error.message : 'Failed to open billing portal. Please try again.',
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -200,6 +215,15 @@ export default function DashboardPage() {
                 transition={{ delay: 0.3 }}
               >
                 <SubscriptionManagement />
+              </motion.div>
+
+              {/* Quick Actions */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <QuickActions />
               </motion.div>
 
               {/* App Features */}

@@ -18,7 +18,8 @@
       "Bash(findstr:*)",
       "Bash(npx tsc:*)",
       "Bash(taskkill:*)",
-      "Read(//c/Users/**)"
+      "Read(//c/Users/**)",
+      "WebFetch(domain:lovelock.it.com)"
     ],
     "deny": [],
     "ask": []
