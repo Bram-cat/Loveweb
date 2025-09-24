@@ -42,8 +42,8 @@ export default async function LoveMatchPage() {
 
             <div className="flex items-center space-x-2 sm:space-x-4">
               <UserButton afterSignOutUrl="/">
-                <UserButton.UserProfilePage label="Account" />
-                <UserButton.UserProfilePage label="Security" url="security" />
+                <UserButton.UserProfilePage label="Account" url="account" labelIcon={<span>👤</span>} />
+                <UserButton.UserProfilePage label="Security" url="security" labelIcon={<span>🔒</span>} />
               </UserButton>
             </div>
           </div>
