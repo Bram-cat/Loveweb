@@ -1,0 +1,11 @@
+# Run these commands one by one (replace <your_value> with actual values):
+
+vercel env add STRIPE_SECRET_KEY production
+vercel env add STRIPE_SECRET_KEY preview
+vercel env add NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY production
+vercel env add NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY preview
+vercel env add STRIPE_WEBHOOK_SECRET production
+vercel env add STRIPE_WEBHOOK_SECRET preview
+
+# After adding, redeploy:
+vercel --prod
