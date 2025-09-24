@@ -64,18 +64,18 @@ export default function HomePage() {
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                 <Heart className="w-5 h-5 text-white" />
               </div>
-              <span className="font-display font-bold text-xl text-gray-900">Lovelock</span>
+              <span className="font-display font-bold text-lg sm:text-xl text-gray-900">Lovelock</span>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <Link href="/pricing">
-                <Button variant="ghost">Pricing</Button>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <Link href="/pricing" className="hidden sm:inline-block">
+                <Button variant="ghost" size="sm" className="sm:size-default">Pricing</Button>
               </Link>
               <Link href="/sign-in">
-                <Button variant="outline">Sign In</Button>
+                <Button variant="outline" size="sm" className="sm:size-default">Sign In</Button>
               </Link>
-              <Link href="/sign-up">
-                <Button variant="gradient">Get Started</Button>
+              <Link href="/sign-up" className="hidden xs:inline-block">
+                <Button variant="gradient" size="sm" className="sm:size-default">Get Started</Button>
               </Link>
             </div>
           </div>
@@ -92,13 +92,13 @@ export default function HomePage() {
             Unlock Your Heart&apos;s Secrets
           </div>
 
-          <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
             Discover Your
             <span className="bg-gradient-primary bg-clip-text text-transparent"> Love </span>
             Destiny
           </h1>
 
-          <p className="text-xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed px-4">
             Master the art of reading people using ancient numerology and modern psychology.
             Predict behavior, understand compatibility, and unlock hidden personality patterns.
           </p>
@@ -117,7 +117,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-gray-500">
             <div className="flex items-center space-x-1">
               <Shield className="w-4 h-4" />
               <span>Secure & Private</span>
@@ -138,10 +138,10 @@ export default function HomePage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Powerful Features for Love & Life
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
               Everything you need to understand yourself and your relationships at a deeper level
             </p>
           </div>
@@ -170,10 +170,10 @@ export default function HomePage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-primary-50 to-secondary-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               What Our Users Say
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-base sm:text-lg text-gray-600 px-4">
               Join thousands of satisfied users who&apos;ve unlocked their potential
             </p>
           </div>
@@ -199,10 +199,10 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-primary text-white">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
             Ready to Unlock Your Love Destiny?
           </h2>
-          <p className="text-xl mb-8 text-white/90">
+          <p className="text-base sm:text-lg md:text-xl mb-8 text-white/90 px-4">
             Join over 1 million users who&apos;ve discovered their true potential
           </p>
 
@@ -246,7 +246,7 @@ export default function HomePage() {
             Unlock hidden secrets about yourself and others through the power of numerology and psychology.
           </p>
 
-          <div className="flex items-center justify-center space-x-6 text-sm text-gray-400">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-400">
             <div className="flex items-center space-x-1">
               <Shield className="w-4 h-4" />
               <span>Secure billing powered by Stripe</span>
