@@ -3,7 +3,11 @@ import Stripe from 'stripe'
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY?.trim()
 if (!stripeSecretKey) {
   console.warn('STRIPE_SECRET_KEY is not defined in environment variables. Stripe features will not work.')
-  // Create a dummy stripe instance for development
+  // Create a dummy stripe instance to prevent crashes
+  const dummyStripe = {
+    customers: { create: () => Promise.reject('Stripe not configured') },
+    checkout: { sessions: { create: () => Promise.reject('Stripe not configured') } }
+  }
   throw new Error('STRIPE_SECRET_KEY is not defined in environment variables')
 }
 
