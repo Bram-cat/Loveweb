@@ -19,6 +19,8 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         gradient: "bg-gradient-primary text-white hover:opacity-90 shadow-lg",
         premium: "bg-gradient-secondary text-white hover:opacity-90 shadow-lg",
+        cosmic: "bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700 font-semibold btn-cosmic shadow-lg transition-all",
+        glass: "glass text-white hover:bg-white/20 transition-all",
       },
       size: {
         default: "h-10 px-4 py-2",

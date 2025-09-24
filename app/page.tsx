@@ -1,267 +1,386 @@
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+"use client";
+
+import {
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+  useUser,
+} from "@clerk/nextjs";
+import { motion } from "framer-motion";
 import {
   Heart,
-  Star,
-  Users,
-  Zap,
-  Shield,
   Sparkles,
-  ArrowRight,
-  Check
-} from 'lucide-react'
-import Link from 'next/link'
+  Shield,
+  Calculator,
+  Star,
+  Diamond,
+  Crown,
+  Zap,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function HomePage() {
+  const { user, isLoaded } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoaded && user) {
+      router.push("/pricing");
+    }
+  }, [user, isLoaded, router]);
+
   const features = [
     {
-      icon: Heart,
-      title: "Love Match Analysis",
-      description: "Discover your compatibility with anyone using advanced numerology algorithms."
-    },
-    {
-      icon: Star,
+      icon: Calculator,
       title: "Numerology Readings",
-      description: "Unlock hidden personality traits and life patterns through ancient numerology wisdom."
+      description:
+        "Unlock the secrets hidden in your birth date and name through ancient numerological wisdom.",
     },
     {
-      icon: Users,
+      icon: Heart,
+      title: "Love Compatibility",
+      description:
+        "Discover deep insights about your relationships and romantic compatibility with others.",
+    },
+    {
+      icon: Shield,
       title: "Trust Assessment",
-      description: "Evaluate relationship dynamics and trust levels with precision insights."
+      description:
+        "Evaluate trustworthiness and character traits through advanced psychological analysis.",
     },
     {
-      icon: Zap,
+      icon: Sparkles,
       title: "AI-Powered Insights",
-      description: "Get instant, personalized analysis powered by advanced artificial intelligence."
-    }
-  ]
+      description:
+        "Get personalized insights powered by cutting-edge AI and psychological research.",
+    },
+  ];
 
   const testimonials = [
     {
       name: "Sarah M.",
+      text: "Lovelock helped me understand my partner better. The compatibility reading was spot-on!",
       rating: 5,
-      text: "Lovelock helped me understand my relationship patterns. The insights are incredibly accurate!"
     },
     {
-      name: "David R.",
+      name: "Michael R.",
+      text: "The numerology readings are incredibly accurate. I'm amazed by what my birth date reveals.",
       rating: 5,
-      text: "The numerology readings revealed things about myself I never knew. Amazing accuracy."
     },
     {
-      name: "Emma L.",
+      name: "Jessica L.",
+      text: "Trust assessments have been a game-changer for my business relationships.",
       rating: 5,
-      text: "The love compatibility analysis was spot-on. It helped me navigate my relationships better."
-    }
-  ]
+    },
+  ];
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="spinner"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen">
-      {/* Navigation */}
-      <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <Heart className="w-5 h-5 text-white" />
-              </div>
-              <span className="font-display font-bold text-lg sm:text-xl text-gray-900">Lovelock</span>
+    <div className="min-h-screen relative overflow-hidden">
+      <nav className="relative z-10 p-6">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center space-x-2"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <Heart className="w-6 h-6 text-white" />
             </div>
+            <span className="text-2xl font-bold text-white text-glow">
+              Lovelock
+            </span>
+          </motion.div>
 
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Link href="/pricing" className="hidden sm:inline-block">
-                <Button variant="ghost" size="sm" className="sm:size-default">Pricing</Button>
-              </Link>
-              <Link href="/sign-in">
-                <Button variant="outline" size="sm" className="sm:size-default">Sign In</Button>
-              </Link>
-              <Link href="/sign-up" className="hidden xs:inline-block">
-                <Button variant="gradient" size="sm" className="sm:size-default">Get Started</Button>
-              </Link>
-            </div>
+          <div className="flex items-center space-x-4">
+            <SignedOut>
+              <SignInButton mode="modal">
+                <Button variant="glass">Sign In</Button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <Button variant="cosmic">Get Started</Button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-100 via-white to-secondary-100 animate-gradient" />
+      <div className="absolute inset-0 pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="sparkle"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 2}s`,
+              animationDuration: `${2 + Math.random() * 2}s`,
+            }}
+          />
+        ))}
+      </div>
 
-        <div className="relative max-w-7xl mx-auto text-center">
-          <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-primary/10 text-primary-700 text-sm font-medium mb-8">
-            <Sparkles className="w-4 h-4 mr-2" />
-            Unlock Your Heart&apos;s Secrets
-          </div>
-
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-            Discover Your
-            <span className="bg-gradient-primary bg-clip-text text-transparent"> Love </span>
-            Destiny
-          </h1>
-
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed px-4">
-            Master the art of reading people using ancient numerology and modern psychology.
-            Predict behavior, understand compatibility, and unlock hidden personality patterns.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-            <Link href="/pricing">
-              <Button size="xl" variant="gradient" className="animate-float">
-                Start Your Journey
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
-            <Link href="/sign-in">
-              <Button size="xl" variant="outline">
-                I Have an Account
-              </Button>
-            </Link>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-gray-500">
-            <div className="flex items-center space-x-1">
-              <Shield className="w-4 h-4" />
-              <span>Secure & Private</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Zap className="w-4 h-4" />
-              <span>Instant Results</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Heart className="w-4 h-4" />
-              <span>1M+ Users Trust Us</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Powerful Features for Love & Life
-            </h2>
-            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
-              Everything you need to understand yourself and your relationships at a deeper level
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <Card key={index} className="hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-gray-50 to-white">
-                <CardHeader className="text-center pb-2">
-                  <div className="mx-auto w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4">
-                    <feature.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <CardTitle className="text-lg">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-center text-gray-600">
-                    {feature.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-primary-50 to-secondary-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              What Our Users Say
-            </h2>
-            <p className="text-base sm:text-lg text-gray-600 px-4">
-              Join thousands of satisfied users who&apos;ve unlocked their potential
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                <CardContent className="pt-6">
-                  <div className="flex items-center mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-gray-600 mb-4 italic">&ldquo;{testimonial.text}&rdquo;</p>
-                  <p className="font-semibold text-gray-900">— {testimonial.name}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-primary text-white">
+      <section className="relative z-10 px-6 pt-20 pb-32">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
-            Ready to Unlock Your Love Destiny?
-          </h2>
-          <p className="text-base sm:text-lg md:text-xl mb-8 text-white/90 px-4">
-            Join over 1 million users who&apos;ve discovered their true potential
-          </p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-6"
+          >
+            <div className="inline-flex items-center space-x-2 glass px-4 py-2 rounded-full mb-8">
+              <Sparkles className="w-4 h-4 text-yellow-400" />
+              <span className="text-sm text-white">
+                Unlock Hidden Secrets About Yourself and Others
+              </span>
+            </div>
+          </motion.div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/pricing">
-              <Button size="xl" className="bg-white text-primary-600 hover:bg-gray-100">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-6xl md:text-7xl font-bold text-white mb-6 text-glow"
+          >
+            Discover Your
+            <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+              {" "}
+              Cosmic{" "}
+            </span>
+            Blueprint
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed"
+          >
+            Master the art of reading people using ancient numerology and modern
+            psychology. Predict behavior, understand relationships, and unlock
+            personality patterns.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6"
+          >
+            <SignedOut>
+              <SignUpButton mode="modal">
+                <Button
+                  variant="cosmic"
+                  size="xl"
+                  className="inline-flex items-center gap-2"
+                >
+                  Start Your Journey
+                  <Sparkles className="w-5 h-5" />
+                </Button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <Button
+                variant="cosmic"
+                size="xl"
+                onClick={() => router.push("/pricing")}
+                className="inline-flex items-center gap-2"
+              >
                 Choose Your Plan
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <Crown className="w-5 h-5" />
               </Button>
-            </Link>
-          </div>
+            </SignedIn>
 
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
-            <div>
-              <div className="text-2xl font-bold mb-1">1M+</div>
-              <div className="text-white/80">Happy Users</div>
+            <div className="text-center">
+              <p className="text-sm text-gray-400">
+                Used by 50,000+ people worldwide
+              </p>
+              <div className="flex justify-center mt-2">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className="w-4 h-4 text-yellow-400 fill-current"
+                  />
+                ))}
+                <span className="text-sm text-gray-300 ml-2">4.9/5</span>
+              </div>
             </div>
-            <div>
-              <div className="text-2xl font-bold mb-1">99.9%</div>
-              <div className="text-white/80">Uptime</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold mb-1">24/7</div>
-              <div className="text-white/80">Support</div>
-            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      <section className="relative z-10 px-6 py-20">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 text-glow">
+              Powerful Features for
+              <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+                {" "}
+                Self-Discovery
+              </span>
+            </h2>
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+              Everything you need to understand yourself and others on a deeper
+              level
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 + index * 0.1 }}
+                className="feature-item"
+              >
+                <Card className="glass border-white/10 bg-white/5 backdrop-blur-lg hover:transform hover:scale-105 transition-all duration-300 card-glow">
+                  <CardHeader className="pb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center mb-4">
+                      <feature.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <CardTitle className="text-xl text-white">
+                      {feature.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="text-gray-300 leading-relaxed">
+                      {feature.description}
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-900 text-white">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Heart className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-display font-bold text-xl">Lovelock</span>
-          </div>
+      <section className="relative z-10 px-6 py-20">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0 }}
+          >
+            <h2 className="text-4xl font-bold text-white mb-16 text-glow">
+              Loved by Thousands
+            </h2>
 
-          <p className="text-gray-400 mb-4">
-            Unlock hidden secrets about yourself and others through the power of numerology and psychology.
-          </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-400">
-            <div className="flex items-center space-x-1">
-              <Shield className="w-4 h-4" />
-              <span>Secure billing powered by Stripe</span>
+            <div className="grid md:grid-cols-3 gap-8">
+              {testimonials.map((testimonial, index) => (
+                <motion.div
+                  key={testimonial.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.1 + index * 0.1 }}
+                >
+                  <Card className="glass border-white/10 bg-white/5 backdrop-blur-lg">
+                    <CardContent className="pt-6">
+                      <div className="flex justify-center mb-4">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className="w-5 h-5 text-yellow-400 fill-current"
+                          />
+                        ))}
+                      </div>
+                      <CardDescription className="text-gray-300 mb-4 italic text-center">
+                        &quot;{testimonial.text}&quot;
+                      </CardDescription>
+                      <p className="text-white font-semibold text-center">
+                        {testimonial.name}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
             </div>
-            <div className="flex items-center space-x-1">
-              <Check className="w-4 h-4" />
-              <span>30-day money-back guarantee</span>
-            </div>
-          </div>
-
-          <div className="mt-8 pt-8 border-t border-gray-800 text-gray-400 text-sm">
-            © 2024 Lovelock. All rights reserved. • Privacy Policy • Terms of Service
-          </div>
+          </motion.div>
         </div>
-      </footer>
+      </section>
+
+      <section className="relative z-10 px-6 py-20">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.4 }}
+          >
+            <Card className="glass border-white/10 bg-white/5 backdrop-blur-lg p-12">
+              <CardHeader className="text-center pb-6">
+                <CardTitle className="text-4xl md:text-5xl font-bold text-white text-glow mb-6">
+                  Ready to Unlock Your
+                  <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+                    {" "}
+                    Potential
+                  </span>
+                  ?
+                </CardTitle>
+                <CardDescription className="text-xl text-gray-300 max-w-2xl mx-auto">
+                  Join thousands of people who have discovered the secrets
+                  hidden within their cosmic blueprint.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <SignedOut>
+                  <SignUpButton mode="modal">
+                    <Button
+                      variant="cosmic"
+                      size="xl"
+                      className="inline-flex items-center gap-2 mb-4"
+                    >
+                      Begin Your Journey Today
+                      <Zap className="w-5 h-5" />
+                    </Button>
+                  </SignUpButton>
+                </SignedOut>
+                <SignedIn>
+                  <Button
+                    variant="cosmic"
+                    size="xl"
+                    onClick={() => router.push("/pricing")}
+                    className="inline-flex items-center gap-2 mb-4"
+                  >
+                    Choose Your Plan
+                    <Crown className="w-5 h-5" />
+                  </Button>
+                </SignedIn>
+
+                <div className="mt-6 text-sm text-gray-400">
+                  No credit card required • Start for free • Upgrade anytime
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </section>
+
     </div>
-  )
+  );
 }
