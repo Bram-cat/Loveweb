@@ -17,15 +17,15 @@ export default function PricingPage() {
               <span className="font-display font-bold text-xl text-gray-900">Lovelock</span>
             </Link>
 
-            <div className="flex items-center space-x-4">
-              <Link href="/">
-                <Button variant="ghost">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <Link href="/" className="hidden sm:inline-block">
+                <Button variant="ghost" size="sm" className="sm:size-default">
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Home
+                  <span className="hidden md:inline">Back to Home</span>
                 </Button>
               </Link>
               <Link href="/sign-in">
-                <Button variant="outline">Sign In</Button>
+                <Button variant="outline" size="sm" className="sm:size-default">Sign In</Button>
               </Link>
             </div>
           </div>
@@ -40,16 +40,16 @@ export default function PricingPage() {
             Choose Your Love Journey
           </div>
 
-          <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
             Unlock Your Heart&apos;s
             <span className="bg-gradient-primary bg-clip-text text-transparent"> Potential</span>
           </h1>
 
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto px-4">
             Select the perfect plan to discover your love destiny and unlock the mysteries of relationships
           </p>
 
-          <div className="flex items-center justify-center space-x-8 text-sm text-gray-500 mb-12">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 md:gap-8 text-xs sm:text-sm text-gray-500 mb-12 px-4">
             <div className="flex items-center space-x-1">
               <Shield className="w-4 h-4 text-green-500" />
               <span>Secure billing with Stripe</span>
@@ -76,14 +76,14 @@ export default function PricingPage() {
       {/* Features Comparison */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-gray-900 mb-12 px-4">
             Everything You Need to Master Love & Relationships
           </h2>
 
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x divide-gray-200">
               {/* Free Column */}
-              <div className="p-8 border-r border-gray-200">
+              <div className="p-4 sm:p-6 md:p-8">
                 <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">Free</h3>
                 <ul className="space-y-4">
                   <li className="flex items-center text-sm">
@@ -110,7 +110,7 @@ export default function PricingPage() {
               </div>
 
               {/* Premium Column */}
-              <div className="p-8 border-r border-gray-200 bg-gradient-to-br from-green-50 to-green-100">
+              <div className="p-4 sm:p-6 md:p-8 bg-gradient-to-br from-green-50 to-green-100">
                 <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">Premium</h3>
                 <ul className="space-y-4">
                   <li className="flex items-center text-sm">
@@ -141,7 +141,7 @@ export default function PricingPage() {
               </div>
 
               {/* Unlimited Column */}
-              <div className="p-8 bg-gradient-to-br from-purple-50 to-purple-100">
+              <div className="p-4 sm:p-6 md:p-8 bg-gradient-to-br from-purple-50 to-purple-100">
                 <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">Unlimited</h3>
                 <ul className="space-y-4">
                   <li className="flex items-center text-sm">
@@ -182,7 +182,7 @@ export default function PricingPage() {
       {/* FAQ */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-gray-900 mb-12 px-4">
             Frequently Asked Questions
           </h2>
 
@@ -240,7 +240,7 @@ export default function PricingPage() {
             Unlock hidden secrets about yourself and others through the power of numerology and psychology.
           </p>
 
-          <div className="flex items-center justify-center space-x-6 text-sm text-gray-400">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-400">
             <div className="flex items-center space-x-1">
               <Shield className="w-4 h-4" />
               <span>Secure billing powered by Stripe</span>

@@ -100,10 +100,10 @@ export default async function DashboardPage() {
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                 <Heart className="w-5 h-5 text-white" />
               </div>
-              <span className="font-display font-bold text-xl text-gray-900">Lovelock</span>
+              <span className="font-display font-bold text-lg sm:text-xl text-gray-900">Lovelock</span>
             </Link>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <Badge
                 variant={subscriptionTier === 'free' ? 'outline' : 'default'}
                 className={subscriptionTier !== 'free' ? 'bg-gradient-primary text-white' : ''}
@@ -123,10 +123,10 @@ export default async function DashboardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             Welcome back, {user?.firstName || 'Lovelock User'}! 👋
           </h1>
-          <p className="text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600">
             Your journey to unlock your heart&apos;s secrets continues here.
           </p>
         </div>

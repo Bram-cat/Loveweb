@@ -37,10 +37,10 @@ export default async function LoveMatchPage() {
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                 <Heart className="w-5 h-5 text-white" />
               </div>
-              <span className="font-display font-bold text-xl text-gray-900">Lovelock</span>
+              <span className="font-display font-bold text-lg sm:text-xl text-gray-900">Lovelock</span>
             </Link>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <UserButton afterSignOutUrl="/">
                 <UserButton.UserProfilePage label="Account" />
                 <UserButton.UserProfilePage label="Security" url="security" />
@@ -58,11 +58,11 @@ export default async function LoveMatchPage() {
             Love Match Analysis
           </div>
 
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Discover Your Perfect Match
           </h1>
 
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
             Unlock the secrets of romantic compatibility using advanced numerology and psychology. Find out how well you match with someone special and what makes your connection unique.
           </p>
         </div>
