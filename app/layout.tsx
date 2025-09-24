@@ -39,6 +39,13 @@ export default function RootLayout({
           colorPrimary: '#667eea',
           colorBackground: '#ffffff',
           borderRadius: '12px'
+        },
+        userButton: {
+          elements: {
+            userButtonPopoverActionButton__billing: {
+              display: 'none'
+            }
+          }
         }
       }}
     >
