@@ -111,7 +111,10 @@ export default async function DashboardPage() {
                 {subscriptionTier === 'free' ? 'Free' :
                  subscriptionTier === 'premium' ? 'Premium' : 'Unlimited'}
               </Badge>
-              <UserButton afterSignOutUrl="/" />
+              <UserButton afterSignOutUrl="/">
+                <UserButton.UserProfilePage label="Account" />
+                <UserButton.UserProfilePage label="Security" url="security" />
+              </UserButton>
             </div>
           </div>
         </div>

@@ -44,7 +44,10 @@ export default async function TrustAssessmentPage() {
             </Link>
 
             <div className="flex items-center space-x-4">
-              <UserButton afterSignOutUrl="/" />
+              <UserButton afterSignOutUrl="/">
+                <UserButton.UserProfilePage label="Account" />
+                <UserButton.UserProfilePage label="Security" url="security" />
+              </UserButton>
             </div>
           </div>
         </div>
