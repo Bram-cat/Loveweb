@@ -5,7 +5,7 @@ const stripeSecretKey = process.env.STRIPE_SECRET_KEY?.trim()
 // Create stripe instance or dummy if key is missing to prevent build crashes
 export const stripe = stripeSecretKey
   ? new Stripe(stripeSecretKey, {
-      apiVersion: '2024-11-20.acacia',
+      apiVersion: '2025-01-27.acacia',
       typescript: true,
     })
   : {
