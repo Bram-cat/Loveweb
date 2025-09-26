@@ -25,7 +25,7 @@ export default function TermsPage() {
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">3. Disclaimer</h2>
           <p className="text-gray-700 mb-4">
-            The materials on Lovelock are provided on an 'as is' basis. Lovelock makes no warranties, expressed or implied.
+            The materials on Lovelock are provided on an &quot;as is&quot; basis. Lovelock makes no warranties, expressed or implied.
           </p>
         </section>
 
