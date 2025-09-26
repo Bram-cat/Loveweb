@@ -65,13 +65,10 @@ export default function RootLayout({
             src="/error-suppression.js"
             strategy="beforeInteractive"
           />
-          <ErrorSuppressor />
-          <ErrorBoundary>
-            <main className="flex-1">
-              {children}
-            </main>
-            <SimpleFooter />
-          </ErrorBoundary>
+          <main className="flex-1">
+            {children}
+          </main>
+          <SimpleFooter />
         </body>
       </html>
     </ClerkProvider>
