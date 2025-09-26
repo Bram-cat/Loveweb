@@ -61,6 +61,7 @@ export const USAGE_LIMITS = {
 }
 
 export type SubscriptionTier = 'free' | 'premium' | 'unlimited'
+export type PlanType = SubscriptionTier // Alias for backwards compatibility
 export type SubscriptionInterval = 'month' | 'year'
 export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'incomplete'
 
@@ -108,3 +109,51 @@ export function getPlanDisplayName(tier: SubscriptionTier, interval?: Subscripti
   }
   return 'Unknown'
 }
+
+// Plan details for pricing components
+export const PLAN_DETAILS = {
+  free: {
+    name: 'Free',
+    price: { monthly: 0, yearly: 0 },
+    description: 'Get started with basic features',
+    features: [
+      '3 Numerology readings per month',
+      '3 Love matches per month',
+      '3 Trust assessments per month',
+      'Basic AI insights',
+      'Email support'
+    ],
+    popular: false
+  },
+  premium: {
+    name: 'Premium',
+    price: { monthly: 9.99, yearly: 99.99 },
+    description: 'Unlock advanced features and insights',
+    features: [
+      '50 Numerology readings per month',
+      '50 Love matches per month',
+      '50 Trust assessments per month',
+      'Advanced AI insights',
+      'Priority support',
+      'Export reports',
+      'Detailed analysis'
+    ],
+    popular: true
+  },
+  unlimited: {
+    name: 'Unlimited',
+    price: { monthly: 19.99, yearly: 199.99 },
+    description: 'Everything unlimited for power users',
+    features: [
+      'Unlimited numerology readings',
+      'Unlimited love matches',
+      'Unlimited trust assessments',
+      'Premium AI insights',
+      'VIP support',
+      'Advanced analytics',
+      'Custom reports',
+      'API access'
+    ],
+    popular: false
+  }
+} as const

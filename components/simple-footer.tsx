@@ -1,6 +1,7 @@
 'use client'
 
 import { Heart, Mail, Github, Instagram } from 'lucide-react'
+import Link from 'next/link'
 
 export function SimpleFooter() {
   return (
@@ -22,22 +23,22 @@ export function SimpleFooter() {
           <div className="md:col-span-1">
             <h4 className="text-white font-semibold mb-4">Features</h4>
             <ul className="space-y-2">
-              <li><a href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-sm">Numerology Readings</a></li>
-              <li><a href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-sm">Love Compatibility</a></li>
-              <li><a href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-sm">Trust Assessment</a></li>
-              <li><a href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-sm">AI Insights</a></li>
-              <li><a href="/pricing" className="text-gray-400 hover:text-white transition-colors text-sm">Pricing Plans</a></li>
+              <li><Link href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-sm">Numerology Readings</Link></li>
+              <li><Link href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-sm">Love Compatibility</Link></li>
+              <li><Link href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-sm">Trust Assessment</Link></li>
+              <li><Link href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-sm">AI Insights</Link></li>
+              <li><Link href="/pricing" className="text-gray-400 hover:text-white transition-colors text-sm">Pricing Plans</Link></li>
             </ul>
           </div>
 
           <div className="md:col-span-1">
             <h4 className="text-white font-semibold mb-4">Support</h4>
             <ul className="space-y-2">
-              <li><a href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-sm">Help Center</a></li>
-              <li><a href="/privacy" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a></li>
-              <li><a href="/terms" className="text-gray-400 hover:text-white transition-colors text-sm">Terms of Service</a></li>
+              <li><Link href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-sm">Help Center</Link></li>
+              <li><Link href="/privacy" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="text-gray-400 hover:text-white transition-colors text-sm">Terms of Service</Link></li>
               <li><a href="mailto:lovelock.bugs@gmail.com" className="text-gray-400 hover:text-white transition-colors text-sm">Contact Us</a></li>
-              <li><a href="/account" className="text-gray-400 hover:text-white transition-colors text-sm">Account Settings</a></li>
+              <li><Link href="/account" className="text-gray-400 hover:text-white transition-colors text-sm">Account Settings</Link></li>
             </ul>
           </div>
 
@@ -83,8 +84,8 @@ export function SimpleFooter() {
           </div>
           <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6 text-sm text-gray-400">
             <div className="flex items-center space-x-4">
-              <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
-              <a href="/terms" className="hover:text-white transition-colors">Terms</a>
+              <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+              <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
               <a href="mailto:lovelock.bugs@gmail.com" className="hover:text-white transition-colors">Support</a>
             </div>
             <span className="flex items-center">
