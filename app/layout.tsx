@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
 import { SimpleFooter } from '@/components/simple-footer'
+import ErrorBoundary from '@/components/error-boundary'
+import ErrorSuppressor from '@/components/error-suppressor'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -63,10 +65,13 @@ export default function RootLayout({
     >
       <html lang="en" className="dark">
         <body className={`${inter.className} cosmic-bg min-h-screen flex flex-col`}>
-          <main className="flex-1">
-            {children}
-          </main>
-          <SimpleFooter />
+          <ErrorSuppressor />
+          <ErrorBoundary>
+            <main className="flex-1">
+              {children}
+            </main>
+            <SimpleFooter />
+          </ErrorBoundary>
         </body>
       </html>
     </ClerkProvider>

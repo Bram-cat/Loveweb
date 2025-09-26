@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://lovelock.it.com/sitemap.xml
