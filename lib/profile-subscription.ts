@@ -127,6 +127,82 @@ export class ProfileSubscriptionService {
     }
   }
 
+  static async getSubscriptionStatus(clerkUserId: string) {
+    // Get subscription status with profile information
+    try {
+      const usage = await this.getSubscriptionUsage(clerkUserId)
+      const profile = await this.getProfile(clerkUserId)
+
+      return {
+        ...usage,
+        subscription: profile,
+        profile: profile
+      }
+    } catch (error) {
+      console.error('Error getting subscription status:', error)
+      return null
+    }
+  }
+
+  static async getUserSubscription(clerkUserId: string) {
+    // Return user profile which contains subscription information
+    return this.getProfile(clerkUserId)
+  }
+
+  static async updateSubscriptionFromStripe(subscriptionData: any, clerkUserId?: string) {
+    // Update subscription based on Stripe data
+    try {
+      // If clerkUserId not provided, try to find it from Stripe customer ID
+      if (!clerkUserId && subscriptionData.customer) {
+        // Try to find user by stripe_customer_id
+        const { data } = await supabase
+          .from('users')
+          .select('clerk_user_id')
+          .eq('stripe_customer_id', subscriptionData.customer)
+          .single()
+
+        if (data) {
+          clerkUserId = data.clerk_user_id
+        }
+      }
+
+      if (!clerkUserId) {
+        console.error('Cannot update subscription: no user ID provided')
+        return null
+      }
+
+      const updates: Partial<UserProfile> = {
+        subscription_status: subscriptionData.status || 'active',
+        subscription_tier: subscriptionData.tier || 'free',
+        stripe_customer_id: subscriptionData.customer || undefined,
+        subscription_id: subscriptionData.id || undefined,
+        current_period_end: subscriptionData.current_period_end ? new Date(subscriptionData.current_period_end * 1000).toISOString() : undefined,
+        cancel_at_period_end: subscriptionData.cancel_at_period_end || false
+      }
+
+      return this.updateProfile(clerkUserId, updates)
+    } catch (error) {
+      console.error('Error updating subscription from Stripe:', error)
+      return null
+    }
+  }
+
+  static async downgradeExpiredSubscription(clerkUserId: string) {
+    // Downgrade user to free tier when subscription expires
+    try {
+      const updates: Partial<UserProfile> = {
+        subscription_tier: 'free',
+        subscription_status: 'active',
+        cancel_at_period_end: false
+      }
+
+      return this.updateProfile(clerkUserId, updates)
+    } catch (error) {
+      console.error('Error downgrading expired subscription:', error)
+      return null
+    }
+  }
+
   static async getFallbackProfile(clerkUserId: string): Promise<UserProfile> {
     return {
       id: 'fallback',

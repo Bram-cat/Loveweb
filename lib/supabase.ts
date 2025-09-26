@@ -9,6 +9,15 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+// Admin client for server-side operations
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+})
+
 export type Database = {
   public: {
     Tables: {
