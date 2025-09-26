@@ -12,11 +12,6 @@ export const metadata: Metadata = {
   title: 'Lovelock - Unlock Hidden Secrets About Yourself and Others',
   description: 'Discover personality patterns, predict behavior, and master the art of reading people using ancient numerology and modern psychology.',
   keywords: ['personality', 'numerology', 'astrology', 'self-discovery', 'character analysis', 'psychology', 'mind reading', 'prediction', 'life insights'],
-  icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png',
-  },
   openGraph: {
     title: 'Lovelock - Unlock Hidden Secrets',
     description: 'Discover personality patterns, predict behavior, and master the art of reading people using ancient numerology and modern psychology.',
