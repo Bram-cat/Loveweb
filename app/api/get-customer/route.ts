@@ -19,6 +19,14 @@ export async function GET(request: NextRequest) {
     try {
       // Get subscription status which includes all the information we need
       const subscriptionData = await ProfileSubscriptionService.getSubscriptionStatus(userId)
+
+      if (!subscriptionData) {
+        return NextResponse.json(
+          { error: 'User subscription data not found' },
+          { status: 404 }
+        )
+      }
+
       const { subscription, profile } = subscriptionData
 
       // Try to get Stripe customer information if we have a stripe_customer_id
@@ -39,13 +47,13 @@ export async function GET(request: NextRequest) {
         id: userSubscription?.stripe_customer_id || `mock_${userId}`,
         email: profile?.email || 'user@example.com',
         subscription: {
-          id: subscription.id || `mock_sub_${userId}`,
-          status: subscription.status,
-          tier: subscription.tier,
-          currentPeriodEnd: subscription.currentPeriodEnd ? new Date(subscription.currentPeriodEnd) : null,
-          cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
-          is_premium: subscription.is_premium,
-          is_unlimited: subscription.is_unlimited
+          id: userSubscription?.stripe_subscription_id || `mock_sub_${userId}`,
+          status: userSubscription?.subscription_status || 'active',
+          tier: userSubscription?.subscription_tier || 'free',
+          currentPeriodEnd: userSubscription?.current_period_end ? new Date(userSubscription.current_period_end) : null,
+          cancelAtPeriodEnd: userSubscription?.cancel_at_period_end || false,
+          is_premium: userSubscription?.subscription_tier === 'premium',
+          is_unlimited: userSubscription?.subscription_tier === 'unlimited'
         }
       }
 

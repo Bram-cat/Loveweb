@@ -10,7 +10,7 @@ export interface UserProfile {
   stripe_customer_id?: string
   subscription_tier: SubscriptionTier
   subscription_status: SubscriptionStatus
-  subscription_id?: string
+  stripe_subscription_id?: string  // Match database schema
   current_period_end?: string
   cancel_at_period_end: boolean
   created_at: string
@@ -100,7 +100,7 @@ export class ProfileSubscriptionService {
     return this.updateProfile(clerkUserId, {
       subscription_tier: subscriptionData.tier,
       subscription_status: subscriptionData.status,
-      subscription_id: subscriptionData.subscription_id,
+      stripe_subscription_id: subscriptionData.subscription_id,
       current_period_end: subscriptionData.current_period_end,
       cancel_at_period_end: subscriptionData.cancel_at_period_end || false
     })
@@ -175,7 +175,7 @@ export class ProfileSubscriptionService {
         subscription_status: subscriptionData.status || 'active',
         subscription_tier: subscriptionData.tier || 'free',
         stripe_customer_id: subscriptionData.customer || undefined,
-        subscription_id: subscriptionData.id || undefined,
+        stripe_subscription_id: subscriptionData.id || undefined,
         current_period_end: subscriptionData.current_period_end ? new Date(subscriptionData.current_period_end * 1000).toISOString() : undefined,
         cancel_at_period_end: subscriptionData.cancel_at_period_end || false
       }

@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     const prorationDate = Math.floor(Date.now() / 1000)
 
     // Create a preview of the upcoming invoice to show the user what they'll be charged
-    const upcomingInvoice = await stripe.invoices.retrieveUpcoming({
+    const upcomingInvoice = await (stripe.invoices as any).upcoming({
       customer: currentSubscription.customer as string,
       subscription: currentSubscription.id,
       subscription_items: [
@@ -180,7 +180,7 @@ export async function GET(request: NextRequest) {
     const prorationDate = Math.floor(Date.now() / 1000)
 
     try {
-      const upcomingInvoice = await stripe.invoices.retrieveUpcoming({
+      const upcomingInvoice = await (stripe.invoices as any).upcoming({
         customer: currentSubscription.customer as string,
         subscription: currentSubscription.id,
         subscription_items: [
@@ -206,7 +206,7 @@ export async function GET(request: NextRequest) {
           interval: newPrice.recurring?.interval,
           product: product.name
         },
-        prorationDetails: upcomingInvoice.lines.data.map(line => ({
+        prorationDetails: upcomingInvoice.lines.data.map((line: any) => ({
           description: line.description,
           amount: line.amount,
           period: line.period

@@ -120,7 +120,7 @@ export function PricingPlans({ currentPlan = 'free' }: PricingPlansProps) {
 
               <div className="space-y-1">
                 <div className="text-4xl font-bold text-gray-900">
-                  ${plan.price}
+                  ${plan.price.monthly}
                   {!isFreePlan && (
                     <span className="text-lg font-normal text-gray-500">/month</span>
                   )}

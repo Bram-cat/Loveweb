@@ -6,7 +6,8 @@ import Stripe from 'stripe'
 
 export async function POST(request: NextRequest) {
   const body = await request.text()
-  const signature = headers().get('stripe-signature')
+  const headersList = await headers()
+  const signature = headersList.get('stripe-signature')
 
   if (!signature) {
     return NextResponse.json(
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
           const subscription = await stripe.subscriptions.retrieve(
             session.subscription as string
           )
-          await ProfileSubscriptionService.updateSubscriptionFromStripe(subscription)
+          await ProfileSubscriptionService.updateSubscriptionFromStripe(subscription, undefined)
         }
         break
       }
@@ -65,39 +66,39 @@ export async function POST(request: NextRequest) {
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription
         console.log(`Subscription ${event.type}:`, subscription.id)
-        await ProfileSubscriptionService.updateSubscriptionFromStripe(subscription)
+        await ProfileSubscriptionService.updateSubscriptionFromStripe(subscription, undefined)
         break
       }
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription
         console.log('Subscription deleted:', subscription.id)
-        await ProfileSubscriptionService.updateSubscriptionFromStripe(subscription)
+        await ProfileSubscriptionService.updateSubscriptionFromStripe(subscription, undefined)
         break
       }
 
       case 'invoice.payment_succeeded': {
-        const invoice = event.data.object as Stripe.Invoice
+        const invoice = event.data.object as any
         console.log('Invoice payment succeeded:', invoice.id)
 
         if (invoice.subscription) {
           const subscription = await stripe.subscriptions.retrieve(
-            invoice.subscription as string
+            typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription.id
           )
-          await ProfileSubscriptionService.updateSubscriptionFromStripe(subscription)
+          await ProfileSubscriptionService.updateSubscriptionFromStripe(subscription, undefined)
         }
         break
       }
 
       case 'invoice.payment_failed': {
-        const invoice = event.data.object as Stripe.Invoice
+        const invoice = event.data.object as any
         console.log('Invoice payment failed:', invoice.id)
 
         if (invoice.subscription) {
           const subscription = await stripe.subscriptions.retrieve(
-            invoice.subscription as string
+            typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription.id
           )
-          await ProfileSubscriptionService.updateSubscriptionFromStripe(subscription)
+          await ProfileSubscriptionService.updateSubscriptionFromStripe(subscription, undefined)
         }
         break
       }
