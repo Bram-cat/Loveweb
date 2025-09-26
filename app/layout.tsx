@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import Script from 'next/script'
 import { ClerkProvider } from '@clerk/nextjs'
 import { SimpleFooter } from '@/components/simple-footer'
 import ErrorBoundary from '@/components/error-boundary'
@@ -60,6 +61,10 @@ export default function RootLayout({
     >
       <html lang="en" className="dark">
         <body className={`${inter.className} cosmic-bg min-h-screen flex flex-col`}>
+          <Script
+            src="/error-suppression.js"
+            strategy="beforeInteractive"
+          />
           <ErrorSuppressor />
           <ErrorBoundary>
             <main className="flex-1">

@@ -7,84 +7,63 @@ export default function ErrorSuppressor() {
     const originalError = console.error
     const originalWarn = console.warn
 
-    console.error = (...args) => {
-      const message = args[0]?.toString() || ''
+    // Comprehensive list of patterns to suppress
+    const suppressedPatterns = [
+      'apiKey',
+      'config.authenticator',
+      'Neither apiKey nor config.authenticator',
+      'setAuthenticator',
+      'r._setAuthenticator',
+      '714-f4706624d7e8aa9b',
+      '714-f47066',
+      '255-01c481785f268126',
+      '4bd1b696-c023c6e3521b1417',
+      'chrome-extension',
+      'moz-extension',
+      'layout-66a15374f020044b',
+      'terms2_psc',
+      'privacy2_psc',
+      'page-c90a3bc18e078208',
+      'webpack-db6632fee275fcd4',
+      'Error boundary caught an error',
+      'External/extension error detected',
+      'Uncaught (in promise) Error',
+      'Uncaught Error'
+    ]
 
-      // Suppress known external/extension errors
-      if (
-        message.includes('apiKey') ||
-        message.includes('config.authenticator') ||
-        message.includes('Neither apiKey nor config.authenticator') ||
-        message.includes('setAuthenticator') ||
-        message.includes('714-f4706624d7e8aa9b') ||
-        message.includes('714-f47066') ||
-        message.includes('255-01c481785f268126') ||
-        message.includes('chrome-extension') ||
-        message.includes('moz-extension') ||
-        message.includes('terms2_psc') ||
-        message.includes('privacy2_psc') ||
-        message.includes('layout-66a15374f020044b') ||
-        message.includes('Error boundary caught an error') ||
-        message.includes('External/extension error detected')
-      ) {
+    function shouldSuppress(message: any): boolean {
+      const msgStr = String(message || '')
+      return suppressedPatterns.some(pattern => msgStr.includes(pattern))
+    }
+
+    console.error = (...args) => {
+      if (args.some(shouldSuppress)) {
         return // Suppress these errors
       }
-
       originalError.apply(console, args)
     }
 
     console.warn = (...args) => {
-      const message = args[0]?.toString() || ''
-
-      // Suppress known warnings from browser extensions
-      if (
-        message.includes('chrome-extension') ||
-        message.includes('moz-extension') ||
-        message.includes('psc=')
-      ) {
+      if (args.some(shouldSuppress)) {
         return // Suppress these warnings
       }
-
       originalWarn.apply(console, args)
     }
 
     // Handle unhandled promise rejections
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      const reason = event.reason?.toString() || ''
-
-      if (
-        reason.includes('apiKey') ||
-        reason.includes('config.authenticator') ||
-        reason.includes('Neither apiKey nor config.authenticator') ||
-        reason.includes('setAuthenticator') ||
-        reason.includes('714-f4706624d7e8aa9b') ||
-        reason.includes('714-f47066') ||
-        reason.includes('255-01c481785f268126') ||
-        reason.includes('layout-66a15374f020044b')
-      ) {
+      if (shouldSuppress(event.reason)) {
         event.preventDefault() // Prevent these from showing in console
-        return
+        event.stopPropagation()
+        return false
       }
     }
 
     // Handle global errors
     const handleError = (event: ErrorEvent) => {
-      const message = event.message || ''
-      const filename = event.filename || ''
-
-      if (
-        message.includes('apiKey') ||
-        message.includes('config.authenticator') ||
-        message.includes('Neither apiKey nor config.authenticator') ||
-        message.includes('setAuthenticator') ||
-        filename.includes('714-f4706624d7e8aa9b') ||
-        filename.includes('714-f47066') ||
-        filename.includes('255-01c481785f268126') ||
-        filename.includes('chrome-extension') ||
-        filename.includes('moz-extension') ||
-        filename.includes('layout-66a15374f020044b')
-      ) {
+      if (shouldSuppress(event.message) || shouldSuppress(event.filename)) {
         event.preventDefault() // Prevent these from showing
+        event.stopPropagation()
         return false
       }
     }
