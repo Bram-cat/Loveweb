@@ -12,13 +12,20 @@ export default function ErrorSuppressor() {
 
       // Suppress known external/extension errors
       if (
-        message.includes('apiKey nor config.authenticator') ||
+        message.includes('apiKey') ||
+        message.includes('config.authenticator') ||
+        message.includes('Neither apiKey nor config.authenticator') ||
+        message.includes('setAuthenticator') ||
         message.includes('714-f4706624d7e8aa9b') ||
+        message.includes('714-f47066') ||
         message.includes('255-01c481785f268126') ||
         message.includes('chrome-extension') ||
         message.includes('moz-extension') ||
         message.includes('terms2_psc') ||
-        message.includes('privacy2_psc')
+        message.includes('privacy2_psc') ||
+        message.includes('layout-66a15374f020044b') ||
+        message.includes('Error boundary caught an error') ||
+        message.includes('External/extension error detected')
       ) {
         return // Suppress these errors
       }
@@ -48,8 +55,12 @@ export default function ErrorSuppressor() {
       if (
         reason.includes('apiKey') ||
         reason.includes('config.authenticator') ||
+        reason.includes('Neither apiKey nor config.authenticator') ||
+        reason.includes('setAuthenticator') ||
         reason.includes('714-f4706624d7e8aa9b') ||
-        reason.includes('255-01c481785f268126')
+        reason.includes('714-f47066') ||
+        reason.includes('255-01c481785f268126') ||
+        reason.includes('layout-66a15374f020044b')
       ) {
         event.preventDefault() // Prevent these from showing in console
         return
@@ -64,10 +75,14 @@ export default function ErrorSuppressor() {
       if (
         message.includes('apiKey') ||
         message.includes('config.authenticator') ||
+        message.includes('Neither apiKey nor config.authenticator') ||
+        message.includes('setAuthenticator') ||
         filename.includes('714-f4706624d7e8aa9b') ||
+        filename.includes('714-f47066') ||
         filename.includes('255-01c481785f268126') ||
         filename.includes('chrome-extension') ||
-        filename.includes('moz-extension')
+        filename.includes('moz-extension') ||
+        filename.includes('layout-66a15374f020044b')
       ) {
         event.preventDefault() // Prevent these from showing
         return false

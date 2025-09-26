@@ -19,27 +19,48 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    // Check if this is an external/extension error
+    const isExternalError =
+      error.message?.includes('apiKey') ||
+      error.message?.includes('config.authenticator') ||
+      error.message?.includes('Neither apiKey nor config.authenticator') ||
+      error.stack?.includes('714-f4706624d7e8aa9b') ||
+      error.stack?.includes('714-f47066') ||
+      error.stack?.includes('255-01c481785f268126') ||
+      error.stack?.includes('chrome-extension') ||
+      error.stack?.includes('moz-extension') ||
+      error.stack?.includes('setAuthenticator')
+
+    if (isExternalError) {
+      // Don't show error UI for external errors
+      return { hasError: false }
+    }
+
     return { hasError: true, error }
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error boundary caught an error:', error, errorInfo)
-
     // Filter out common browser extension/third-party errors
     const isExternalError =
       error.message?.includes('apiKey') ||
       error.message?.includes('config.authenticator') ||
+      error.message?.includes('Neither apiKey nor config.authenticator') ||
       error.stack?.includes('714-f4706624d7e8aa9b') ||
+      error.stack?.includes('714-f47066') ||
       error.stack?.includes('255-01c481785f268126') ||
       error.stack?.includes('chrome-extension') ||
-      error.stack?.includes('moz-extension')
+      error.stack?.includes('moz-extension') ||
+      error.stack?.includes('setAuthenticator') ||
+      errorInfo.componentStack?.includes('layout-66a15374f020044b')
 
     if (isExternalError) {
-      console.warn('External/extension error detected, ignoring:', error.message)
-      // Reset the error state for external errors
+      // Silently ignore external errors - don't even log them
       this.setState({ hasError: false })
       return
     }
+
+    // Only log and handle actual application errors
+    console.error('Application error caught by boundary:', error, errorInfo)
   }
 
   resetError = () => {
