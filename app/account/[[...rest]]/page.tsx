@@ -6,6 +6,7 @@ import { User, Settings, Shield, Bell, CreditCard, Key } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect, useState, Suspense, useRef } from 'react'
+import Link from 'next/link'
 // import { SubscriptionManagement } from '@/components/subscription-management'
 
 function AccountPageContent() {
@@ -29,7 +30,7 @@ function AccountPageContent() {
       console.log('Mobile auth parameters detected:', { userId, email, section })
       setMobileAuth(true)
     }
-  }, []) // Empty dependency array - run only once
+  }, [source, userId, email, section]) // Include all dependencies
 
   // Handle redirects for unauthenticated users
   useEffect(() => {
@@ -45,7 +46,7 @@ function AccountPageContent() {
         router.push('/sign-in')
       }
     }
-  }, [isLoaded, user]) // Minimal dependencies
+  }, [isLoaded, user, mobileAuth, section, router]) // Include all dependencies
 
   if (!isLoaded) {
     return (
@@ -93,12 +94,12 @@ function AccountPageContent() {
           </motion.div>
 
           <div className="flex items-center space-x-4">
-            <a
+            <Link
               href="/dashboard"
               className="glass px-4 py-2 rounded-lg text-gray-300 hover:text-white transition-colors border border-white/10 hover:border-white/20"
             >
               ← Back to Dashboard
-            </a>
+            </Link>
             <UserButton
               appearance={{
                 elements: {
@@ -125,14 +126,14 @@ function AccountPageContent() {
             <Card className="glass border-white/15 bg-white/8 backdrop-blur-lg card-glow">
               <CardContent className="py-4">
                 <div className="flex flex-wrap items-center justify-center gap-3">
-                  <a
+                  <Link
                     href="/dashboard"
                     className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/15 transition-all duration-300 text-gray-300 hover:text-white border border-white/5 hover:border-white/20 hover:scale-105"
                   >
                     <User className="w-4 h-4" />
                     <span className="font-medium">Dashboard</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="/account"
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 border hover:scale-105 ${
                       !section || section !== 'billing'
@@ -142,8 +143,8 @@ function AccountPageContent() {
                   >
                     <Settings className="w-4 h-4" />
                     <span className="font-medium">Profile</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="/account?section=billing"
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 border hover:scale-105 ${
                       section === 'billing'
@@ -153,7 +154,7 @@ function AccountPageContent() {
                   >
                     <CreditCard className="w-4 h-4" />
                     <span className="font-medium">Billing</span>
-                  </a>
+                  </Link>
                   <button
                     onClick={() => alert('Notifications feature coming soon! You\'ll be able to manage email preferences and notification settings here.')}
                     className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300 text-gray-400 hover:text-gray-300 border border-white/5 hover:border-white/10"
@@ -210,12 +211,12 @@ function AccountPageContent() {
                   <CreditCard className="w-16 h-16 text-purple-400 mx-auto mb-4" />
                   <h2 className="text-2xl font-bold text-white mb-2">Billing & Subscription</h2>
                   <p className="text-gray-300 mb-6">Manage your subscription and billing information</p>
-                  <a
+                  <Link
                     href="/pricing"
                     className="inline-block bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors"
                   >
                     Manage Subscription
-                  </a>
+                  </Link>
                 </CardContent>
               </Card>
             </motion.div>
